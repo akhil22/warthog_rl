@@ -31,20 +31,20 @@ def main():
     num_cpu = 20  # Number of processes to use
     # Create the vectorized environment
     env = SubprocVecEnv([make_env(env_id, i) for i in range(num_cpu)])
-    retrain = True
-    if retrain:
-        model1 = PPO('MlpPolicy', env, verbose=1)
-#for learning uncomment
-        model = PPO('MlpPolicy', env, verbose=1)
-# model.load('./first_pytorch_multiplication_reward.zip')
-        model = PPO.load('parallel2')
-        model.env = model1.env
-        model.learn(total_timesteps=1e6)
-        model.save("parallel3")
-    else:
-        model = PPO('MlpPolicy', env, verbose=1)
-        model.learn(total_timesteps=1e6)
-        model.save("parallel")
+    for i in range(0,10):
+        if i == 0:
+            model = PPO('MlpPolicy', env, verbose=1)
+            model.learn(total_timesteps=1e6)
+            model.save("samestart0")
+        else :
+            #model1 = PPO('MlpPolicy', env, verbose=1)
+            #for learning uncomment
+            model = PPO('MlpPolicy', env, verbose=1)
+            # model.load('./first_pytorch_multiplication_reward.zip')
+            model = PPO.load(f'samestart{i-1}')
+            model.env = model1.env
+            model.learn(total_timesteps=1e6)
+            model.save(f'samestart{i}')
         #env = WarthogEnv('unity_remote.txt')
     #env.reset()
     #for i in range(0,5000):

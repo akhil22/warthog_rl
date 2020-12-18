@@ -1,0 +1,13 @@
+parallel:
+1. simple reward without velocity weights
+2. randonm start
+
+samestart:
+1. simple reward without velocity weights
+2. first point start always
+
+vel_weights:
+1. reward plus velocity_weights.
+2. random start
+
+
