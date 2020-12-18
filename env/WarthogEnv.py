@@ -193,7 +193,7 @@ class WarthogEnv(gym.Env):
                 or math.fabs(self.vel_error) > 1.5):
             self.reward = 0
         self.total_ep_reward = self.total_ep_reward + self.reward
-        self.render()
+        #self.render()
         return obs, self.reward, done, {}
 
     def reset(self):
@@ -252,6 +252,7 @@ class WarthogEnv(gym.Env):
                 'pad': 10
             },
             fontsize=10)
+        #print(time.time() - self.tprev)
         self.tprev = time.time()
         #self.ax.add_artist(self.text)
         self.ax.add_artist(self.rect)
