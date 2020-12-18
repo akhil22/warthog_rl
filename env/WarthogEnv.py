@@ -36,7 +36,7 @@ class WarthogEnv(gym.Env):
         self.max_vel = 1
         self.fig = plt.figure(dpi=100, figsize=(10, 10))
         self.ax = self.fig.add_subplot(111)
-        self.ax.set_box_aspect(1)
+        #self.ax.set_box_aspect(1)
         self.ax.set_xlim([-4, 4])
         self.ax.set_ylim([-4, 4])
         self.warthog_length = 0.5 / 2.0
