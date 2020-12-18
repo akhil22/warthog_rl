@@ -193,7 +193,7 @@ class WarthogEnv(gym.Env):
                 or math.fabs(self.vel_error) > 1.5):
             self.reward = 0
         self.total_ep_reward = self.total_ep_reward + self.reward
-        #self.render()
+        self.render()
         return obs, self.reward, done, {}
 
     def reset(self):
