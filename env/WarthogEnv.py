@@ -70,9 +70,13 @@ class WarthogEnv(gym.Env):
                                  },
                                  fontsize=12)
         #self.ax.add_artist(self.text)
+        self.ep_steps = 0
+        self.max_ep_steps = 700
         self.tprev = time.time()
         self.total_ep_reward = 0
         self.reward = 0
+        self.action = [0.,0.]
+        self.prev_action = [0.,0.]
 
     def plot_waypoints(self):
         x = []
@@ -165,8 +169,10 @@ class WarthogEnv(gym.Env):
         return obs
 
     def step(self, action):
+        self.ep_steps = self.ep_steps+1
         action[0] = np.clip(action[0], 0, 1) * 4.0
         action[1] = np.clip(action[1], -1, 1) * 2.5
+        self.action = action
         self.sim_warthog(action[0], action[1])
         self.prev_closest_idx = self.closest_idx
         obs = self.get_observation()
@@ -186,11 +192,21 @@ class WarthogEnv(gym.Env):
         if (math.fabs(self.crosstrack_error) > 1.5
                 or math.fabs(self.phi_error) > 1.4):
             done = True
+        if self.ep_steps == self.max_ep_steps:
+            done = True
+            self.ep_steps = 0
         self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
-            4.0 - math.fabs(self.vel_error)) * (math.pi / 3. -
-                                                math.fabs(self.phi_error))
-        if (self.prev_closest_idx == self.closest_idx
-                or math.fabs(self.vel_error) > 1.5):
+            4.5 - math.fabs(self.vel_error)) * (math.pi / 3. -
+                                                math.fabs(self.phi_error)) 
+        #self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
+        #    4.0 - math.fabs(self.vel_error)) * (math.pi / 3. -
+        #                                        math.fabs(self.phi_error)) - math.fabs(self.action[0] - self.prev_action[0]) - 1.3*math.fabs(self.action[1] - self.prev_action[1]) 
+        self.prev_action = self.action
+        #if (self.prev_closest_idx == self.closest_idx
+        #        or math.fabs(self.vel_error) > 1.5):
+        if self.waypoints_list[k][3] >= 2.5 and math.fabs(self.vel_error) > 1.5:
+            self.reward = 0
+        elif self.waypoints_list[k][3] < 2.5 and math.fabs(self.vel_error) >0.5:
             self.reward = 0
         self.total_ep_reward = self.total_ep_reward + self.reward
         #self.render()
@@ -200,8 +216,8 @@ class WarthogEnv(gym.Env):
         self.total_ep_reward = 0
         if (self.max_vel >= 5):
             self.max_vel = 1
-        #idx = np.random.randint(self.num_waypoints, size=1)
-        idx = [0]
+        idx = np.random.randint(self.num_waypoints, size=1)
+        #idx = [0]
         idx = idx[0]
         self.closest_idx = 0
         self.prev_closest_idx = 0
