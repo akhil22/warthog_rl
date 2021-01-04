@@ -11,3 +11,7 @@ vel_weights:
 2. random start
 
 
+Things to do:
+1. Check ddpg stable baslines3
+2. check ppo stable baselines
+3. check ddpg stable baselines

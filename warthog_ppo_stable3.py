@@ -37,7 +37,7 @@ def main():
             model.learn(total_timesteps=1e6)
             model.save("samestart0")
         else :
-            #model1 = PPO('MlpPolicy', env, verbose=1)
+            model1 = PPO('MlpPolicy', env, verbose=1)
             #for learning uncomment
             model = PPO('MlpPolicy', env, verbose=1)
             # model.load('./first_pytorch_multiplication_reward.zip')

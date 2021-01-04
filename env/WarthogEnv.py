@@ -193,15 +193,15 @@ class WarthogEnv(gym.Env):
                 or math.fabs(self.vel_error) > 1.5):
             self.reward = 0
         self.total_ep_reward = self.total_ep_reward + self.reward
-        #self.render()
+        self.render()
         return obs, self.reward, done, {}
 
     def reset(self):
         self.total_ep_reward = 0
         if (self.max_vel >= 5):
             self.max_vel = 1
-        #idx = np.random.randint(self.num_waypoints, size=1)
-        idx = [0]
+        idx = np.random.randint(self.num_waypoints, size=1)
+        #idx = [0]
         idx = idx[0]
         self.closest_idx = 0
         self.prev_closest_idx = 0
