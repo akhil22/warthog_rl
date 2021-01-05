@@ -77,6 +77,8 @@ class WarthogEnv(gym.Env):
         self.reward = 0
         self.action = [0.,0.]
         self.prev_action = [0.,0.]
+        self.omega_reward = 0
+        self.vel_reward = 0
 
     def plot_waypoints(self):
         x = []
@@ -197,7 +199,9 @@ class WarthogEnv(gym.Env):
             self.ep_steps = 0
         self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
             4.5 - math.fabs(self.vel_error)) * (math.pi / 3. -
-                                                math.fabs(self.phi_error)) 
+                                                math.fabs(self.phi_error)) - math.fabs(self.action[0] - self.prev_action[0]) - 2*math.fabs(self.action[1])
+        self.omega_reward = -2*math.fabs(self.action[1])
+        self.vel_reward = -math.fabs(self.action[0] - self.prev_action[0])
         #self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
         #    4.0 - math.fabs(self.vel_error)) * (math.pi / 3. -
         #                                        math.fabs(self.phi_error)) - math.fabs(self.action[0] - self.prev_action[0]) - 1.3*math.fabs(self.action[1] - self.prev_action[1]) 
@@ -261,7 +265,7 @@ class WarthogEnv(gym.Env):
         self.text = self.ax.text(
             self.pose[0] + 1,
             self.pose[1] + 2,
-            f'vel_error={self.vel_error:.3f}\nclosest_idx={self.closest_idx}\ncrosstrack_error={self.crosstrack_error:.3f}\nReward={self.reward:.4f}\nwarthog_vel={self.twist[0]:.3f}\nphi_error={self.phi_error*180/math.pi:.4f}\nsim step={time.time() - self.tprev:.4f}\nep_reward={self.total_ep_reward:.4f}\nmax_vel={self.max_vel:.4f}',
+            f'vel_error={self.vel_error:.3f}\nclosest_idx={self.closest_idx}\ncrosstrack_error={self.crosstrack_error:.3f}\nReward={self.reward:.4f}\nwarthog_vel={self.twist[0]:.3f}\nphi_error={self.phi_error*180/math.pi:.4f}\nsim step={time.time() - self.tprev:.4f}\nep_reward={self.total_ep_reward:.4f}\nmax_vel={self.max_vel:.4f}\nomega_reward={self.omega_reward:.4f}\nvel_reward={self.vel_error:.4f}',
             style='italic',
             bbox={
                 'facecolor': 'red',

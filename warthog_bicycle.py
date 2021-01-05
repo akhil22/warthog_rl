@@ -31,7 +31,7 @@ def main():
     num_cpu = 20  # Number of processes to use
     # Create the vectorized environment
     env = SubprocVecEnv([make_env(env_id, i) for i in range(num_cpu)])
-    fname = 'vel_weight4_d'
+    fname = 'policy/vel_weight7_d'
     for i in range(0,10):
         if i == 0:
             model = PPO('MlpPolicy', env, verbose=1)
