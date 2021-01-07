@@ -28,7 +28,7 @@ if __name__ == '__main__':
     num_cpu = 20  # Number of processes to use
     # Create the vectorized environment
     env = SubprocVecEnv([make_env(env_id, i) for i in range(num_cpu)])
-    fname = './policy/vel_weight8_stable'
+    fname = './policy/vel_weight9_stable_delayed'
 
     # Stable Baselines provides you with make_vec_env() helper
     # which does exactly the previous steps for you:
