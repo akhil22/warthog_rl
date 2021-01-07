@@ -30,7 +30,7 @@ class WarthogEnv(gym.Env):
         self.closest_dist = math.inf
         self.num_waypoints = 0
         self.horizon = 10
-        self.dt = 0.03
+        self.dt = 0.05
         self.ref_vel = []
         self._read_waypoint_file(self.filename)
         self.max_vel = 1
@@ -79,6 +79,10 @@ class WarthogEnv(gym.Env):
         self.prev_action = [0.,0.]
         self.omega_reward = 0
         self.vel_reward = 0
+        self.is_delayed_dynamics = True 
+        self.delay_steps = 3
+        self.v_delay_data = [0.]*3
+        self.w_delay_data = [0.]*3
 
     def plot_waypoints(self):
         x = []
@@ -94,13 +98,22 @@ class WarthogEnv(gym.Env):
         th = self.pose[2]
         v_ = self.twist[0]
         w_ = self.twist[1]
+        self.twist[0] = v
+        self.twist[1] = w
+        if self.is_delayed_dynamics:
+            v_ = self.v_delay_data[0]
+            w_ = self.w_delay_data[0]
+            del self.v_delay_data[0]
+            del self.w_delay_data[0]
+            self.v_delay_data.append(v)
+            self.w_delay_data.append(w)
+            self.twist[0] = self.v_delay_data[0]
+            self.twist[1] = self.v_delay_data[1]
         dt = self.dt
         self.prev_ang = self.pose[2]
         self.pose[0] = x + v_ * math.cos(th) * dt
         self.pose[1] = y + v_ * math.sin(th) * dt
         self.pose[2] = th + w_ * dt
-        self.twist[0] = v
-        self.twist[1] = w
 
     def zero_to_2pi(self, theta):
         if theta < 0:
