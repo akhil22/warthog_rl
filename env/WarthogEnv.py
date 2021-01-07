@@ -79,7 +79,7 @@ class WarthogEnv(gym.Env):
         self.prev_action = [0.,0.]
         self.omega_reward = 0
         self.vel_reward = 0
-        self.is_delayed_dynamics = True 
+        self.is_delayed_dynamics = False
         self.delay_steps = 3
         self.v_delay_data = [0.]*3
         self.w_delay_data = [0.]*3
