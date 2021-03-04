@@ -1,2 +1,2 @@
 def Settings(**kwargs):
-    return {'interpreter_path': '/home/akhil/anaconda3/envs/rl/bin/python'}
+    return {'interpreter_path': '/home/sai/.conda/envs/stbaselines1/bin/python'}
