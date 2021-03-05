@@ -1,7 +1,6 @@
 import tensorflow as tf
 
 import gym
-
 from stable_baselines.common.policies import MlpPolicy
 from stable_baselines.common import make_vec_env
 from stable_baselines import PPO2
