@@ -50,6 +50,7 @@ def main():
     print(num_points)
     #for each point in the file get the observation for training
     for i in range(0, num_points-1):
+        print(i)
         D = df.iloc[i]
         waypoint_list = []
         command=[0, 0]
@@ -65,12 +66,14 @@ def main():
                 if np.linalg.norm(waypoint0 - waypoint1) >= waypoint_dist:
                     waypoint_list.append(get_pose_from_df(df.iloc[way_idx]))
                     waypoint0 = np.array([df.iloc[way_idx]["x"],df.iloc[way_idx]["y"]])
+            else:
+                break
             k = k+1
         #if there aren't sufficinet points in the list then populate 
         # the remaining list with zeros
         for j in range(k, num_traj_point - 1):
             waypoint_list.append(np.array([0., 0., 0., 0., 0.]))
-        print(waypoint_list)
+        #print(waypoint_list)
         war_pose = get_pose_from_df(df.iloc[i])
         #warthog_env.set_pose(war_pose[0]+0.1, war_pose[1]+0.05, war_pose[2])
         warthog_env.set_pose(war_pose[0], war_pose[1], war_pose[2])
@@ -81,7 +84,7 @@ def main():
             warthog_env.waypoints_list.append(np.array([i[0], i[1], i[2], i[3]]))
         warthog_env.num_waypoints = len(warthog_env.waypoints_list)
         obs = warthog_env.get_observation()
-        print(obs)
+        #print(obs)
         #write the observation to the file
         for k in obs:
             out_file_h.writelines(f"{k}, ")
