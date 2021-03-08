@@ -32,7 +32,9 @@ class WarthogEnv(gym.Env):
         self.horizon = 10
         self.dt = 0.05
         self.ref_vel = []
-        self._read_waypoint_file(self.filename)
+        self.axis_size = 50
+        if self.filename is not None:
+            self._read_waypoint_file(self.filename)
         self.max_vel = 1
         self.fig = plt.figure(dpi=100, figsize=(10, 10))
         self.ax = self.fig.add_subplot(111)
@@ -43,7 +45,8 @@ class WarthogEnv(gym.Env):
         self.warthog_width = 1.0 / 2.0
         self.warthog_diag = math.sqrt(self.warthog_width**2 +
                                       self.warthog_length**2)
-        self.plot_waypoints()
+        if self.filename is not None:
+            self.plot_waypoints()
         self.rect = Rectangle((0., 0.),
                               self.warthog_width * 2,
                               self.warthog_length * 2,
@@ -83,6 +86,12 @@ class WarthogEnv(gym.Env):
         self.delay_steps = 3
         self.v_delay_data = [0.]*3
         self.w_delay_data = [0.]*3
+
+    def set_pose(self, x, y, th):
+        self.pose = [x, y, th]
+
+    def set_twist(self, v, w):
+        self.tiwst = [v, w]
 
     def plot_waypoints(self):
         x = []
@@ -254,8 +263,8 @@ class WarthogEnv(gym.Env):
         return obs
 
     def render(self, mode='human'):
-        self.ax.set_xlim([self.pose[0] - 4, self.pose[0] + 4])
-        self.ax.set_ylim([self.pose[1] - 4, self.pose[1] + 4])
+        self.ax.set_xlim([self.pose[0] - self.axis_size/2.0, self.pose[0] + self.axis_size/2.0])
+        self.ax.set_ylim([self.pose[1] - self.axis_size/2.0, self.pose[1] + self.axis_size/2.0])
         total_diag_ang = self.diag_ang + self.pose[2]
         xl = self.pose[0] - self.warthog_diag * math.cos(total_diag_ang)
         yl = self.pose[1] - self.warthog_diag * math.sin(total_diag_ang)
