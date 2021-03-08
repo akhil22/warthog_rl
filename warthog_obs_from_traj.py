@@ -72,6 +72,7 @@ def main():
             waypoint_list.append(np.array([0., 0., 0., 0., 0.]))
         print(waypoint_list)
         war_pose = get_pose_from_df(df.iloc[i])
+        #warthog_env.set_pose(war_pose[0]+0.1, war_pose[1]+0.05, war_pose[2])
         warthog_env.set_pose(war_pose[0], war_pose[1], war_pose[2])
         warthog_env.set_twist(war_pose[3], war_pose[4])
         warthog_env.waypoints_list = []
