@@ -15,6 +15,7 @@ import sys
 import numpy as np
 import pandas as pd
 from ast import literal_eval
+from matplotlib import pyplot as plt
 
 # In[4]:
 
@@ -34,38 +35,50 @@ def main():
     model = PPO2.load(sys.argv[1])
     df = pd.read_csv(sys.argv[2])
     num_data_points = len(df.index)
+    df = df.to_numpy()
     print(num_data_points)
+    n_epoch = 10
     #action3, _states2 = model.predict(obs, deterministic = True)
     #x = tf.placeholder(dtype=tf.float32, name='out2')
     #outaction = tf.Variable(0.1, dtype=np.float32)
     graph = model.sess.graph
     with model.sess as sess:
-        #init = tf.global_variables_initializer()
-        #sess.run(init)
-        #op_to_restore = graph.get_tensor_by_name("output/add:0")
-        #def1 = tf.multiply(1.0, op_to_restore)
-        target_ph = tf.placeholder(dtype=tf.float32, shape=[None, 1])
-        for i in range(0, num_data_points):
-            row = df.iloc[i]
-            obs = np.array(row[0:42])
-            print(obs)
-            obs = obs.reshape((-1,) + model.observation_space.shape) 
-            label_action = np.array(row[42:44])
-            #init_new_vars_op = tf.initialize_variables([x])
-            #init_new_vars_op = tf.initialize_variables([target])
-            #sess.run(init_new_vars_op)
-            #def1 = tf.multiply(1.0, model.act_model.deterministic_action)
-            # def1 = tf.multiply(model.act_model.deterministic_action, x)
-            action = model.sess.run(model.act_model.deterministic_action,{model.act_model.obs_ph: obs})
-            #action2, _states = model.predict(obs2, deterministic = True)
-            action[0][0] = np.clip(0, 1, action[0][0])*4 
-            action[0][1] = np.clip(-1, 1, action[0][1])*2.5
-            print(action)
-            print(label_action)
-            print("\n")
+        target_ph = tf.placeholder(dtype=tf.float32, shape=[None, 2])
+        obs = df[:,0:42]
+        labels = df[:,42:44]
+        labels[:, 0] = labels[:,0]/4
+        labels[:, 1] = labels[:,1]/2.5
+        print(obs)
+        print(labels)
+        obs = obs.reshape((-1,) + model.observation_space.shape) 
+        #loss = tf.keras.losses.mean_squared_error(model.act_model.deterministic_action, target_ph)
+        #loss = tf.reduce_mean(tf.squared_difference(model.act_model.deterministic_action, target_ph))
+        loss = tf.nn.l2_loss(model.act_model.deterministic_action - target_ph)/num_data_points
+        optim = tf.train.AdamOptimizer(learning_rate=0.0001, name='Adamopt')
+        train_op = optim.minimize(loss)
+        sess.run(tf.initialize_variables((optim.variables())))
+        action = model.sess.run(model.act_model.deterministic_action,{model.act_model.obs_ph: obs})
+        _, loss1 = sess.run([train_op,loss], {target_ph: labels, model.act_model.obs_ph: obs})
+        print(loss1)
+        for i in range(0,100):
+            _, loss2 = sess.run([train_op ,loss], {target_ph: labels, model.act_model.obs_ph: obs})
+            print(loss2)
+        action1 = model.sess.run(model.act_model.deterministic_action,{model.act_model.obs_ph: obs})
         writer = tf.summary.FileWriter('./graphs', sess.graph)
-        #sess.run(def1)
+        plt.figure(2)
+        plt.plot(action[:,0]*4,'r')
+        plt.plot(labels[:,0]*4, 'g')
+        plt.figure(3)
+        plt.plot(action[:,1]*2.5,'r')
+        plt.plot(labels[:,1]*2.5, 'g')
+        plt.figure(4)
+        plt.plot(action1[:,0]*4,'r')
+        plt.plot(labels[:,0]*4, 'g')
+        plt.figure(5)
+        plt.plot(action1[:,1]*2.5,'r')
+        plt.plot(labels[:,1]*2.5, 'g')
 
+    plt.show()
     writer.flush()
     writer.close()
 
