@@ -11,13 +11,15 @@ from stable_baselines.common import make_vec_env
 from stable_baselines import PPO2
 from matplotlib import pyplot as plt
 from env.WarthogEnv import WarthogEnv
+import time
 import numpy as np
 
 
 # In[4]:
 
 
-env = WarthogEnv('unity_remote.txt')
+#env = WarthogEnv('unity_remote.txt')
+env = WarthogEnv('sim_remote_waypoint.txt')
 plt.pause(2)
 
 
@@ -26,7 +28,8 @@ plt.pause(2)
 
 model1 = PPO2('MlpPolicy', env, verbose=1)
 model = PPO2('MlpPolicy', env, verbose=1)
-model = PPO2.load('./policy/vel_weight8_stable9')
+#model = PPO2.load('./policy/vel_weight8_stable9')
+model = PPO2.load('./policy/after_train')
 model.env = model1.env
 act1 = []
 act2 = []
@@ -37,7 +40,7 @@ obs = env.reset()
 for i in range(5000):
       #  t2 = time.time()
         #action, _states = model.predict(obs, deterministic=False) 
-    action, _states = model.predict(obs)
+    action, _states = model.predict(obs, deterministic = True)
        # print(action)
     act1.append(np.clip(action[0], 0 ,1)*4)
     act2.append(np.clip(action[1], -1 ,1)*2.5)
@@ -51,6 +54,7 @@ for i in range(5000):
         #t1 = t2
     #print(action)
     env.render()
+    #time.sleep(2)
     if done:
         obs = env.reset()
 

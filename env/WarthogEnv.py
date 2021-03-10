@@ -245,8 +245,8 @@ class WarthogEnv(gym.Env):
         idx = np.random.randint(self.num_waypoints, size=1)
         #idx = [0]
         idx = idx[0]
-        self.closest_idx = 0
-        self.prev_closest_idx = 0
+        self.closest_idx = idx
+        self.prev_closest_idx = idx
         self.pose[0] = self.waypoints_list[idx][0] + 0.1
         self.pose[1] = self.waypoints_list[idx][1] + 0.1
         self.pose[2] = self.waypoints_list[idx][2] + 0.01
