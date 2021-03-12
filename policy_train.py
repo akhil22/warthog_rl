@@ -117,7 +117,8 @@ def main():
         plt.legend()
         plt.title("Training Loss vs Test Loss")
         plt.grid()
-        model.save("./policy/after_train_const")
+        #model.save("./policy/after_train_const")
+        model.save("./policy/after_train_const_zero")
 
     plt.grid()
     plt.show()
