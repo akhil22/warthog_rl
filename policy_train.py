@@ -49,7 +49,7 @@ def main():
     print(len(train))
     print(num_data_points)
 
-    n_epoch = 1000
+    n_epoch = 10
     graph = model.sess.graph
     with model.sess as sess:
         target_ph = tf.placeholder(dtype=tf.float32, shape=[None, 2])
@@ -57,7 +57,7 @@ def main():
         test_obs, test_labels = get_obs_label(test)
         #print(obs)
         #print(labels)
-        tarin_obs = train_obs.reshape((-1,) + model.observation_space.shape) 
+        train_obs = train_obs.reshape((-1,) + model.observation_space.shape) 
         test_obs = test_obs.reshape((-1,) + model.observation_space.shape) 
         #loss = tf.keras.losses.mean_squared_error(model.act_model.deterministic_action, target_ph)
         loss = tf.reduce_mean(tf.squared_difference(model.act_model.deterministic_action, target_ph))
@@ -69,7 +69,7 @@ def main():
         test_loss = []
         #action = model.sess.run(model.act_model.deterministic_action,{model.act_model.obs_ph: train_obs})
         action = model.sess.run(model.act_model.deterministic_action,{model.act_model.obs_ph: test_obs})
-        _, loss1 = sess.run([train_op,loss], {target_ph: train_labels, model.act_model.obs_ph: train_obs})
+        #_, loss1 = sess.run([train_op,loss], {target_ph: train_labels, model.act_model.obs_ph: train_obs})
        # print(loss1)
         for i in range(0,n_epoch):
             _, loss2 = sess.run([train_op ,loss], {target_ph: train_labels, model.act_model.obs_ph: train_obs})
@@ -117,7 +117,7 @@ def main():
         plt.legend()
         plt.title("Training Loss vs Test Loss")
         plt.grid()
-        model.save("./policy/after_train")
+        model.save("./policy/after_train_const")
 
     plt.grid()
     plt.show()

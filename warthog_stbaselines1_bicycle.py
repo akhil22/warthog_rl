@@ -28,8 +28,8 @@ plt.pause(2)
 
 model1 = PPO2('MlpPolicy', env, verbose=1)
 model = PPO2('MlpPolicy', env, verbose=1)
-#model = PPO2.load('./policy/vel_weight8_stable9')
-model = PPO2.load('./policy/after_train')
+model = PPO2.load('./policy/vel_weight8_stable9')
+#model = PPO2.load('./policy/after_train_const')
 model.env = model1.env
 act1 = []
 act2 = []
@@ -37,7 +37,7 @@ reward = 0
     #envg = model.get_env()
 obs = env.reset()
     #t1 = time.time()
-for i in range(5000):
+for i in range(3000):
       #  t2 = time.time()
         #action, _states = model.predict(obs, deterministic=False) 
     action, _states = model.predict(obs, deterministic = True)

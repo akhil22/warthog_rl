@@ -30,7 +30,7 @@ class WarthogEnv(gym.Env):
         self.closest_dist = math.inf
         self.num_waypoints = 0
         self.horizon = 10
-        self.dt = 0.05
+        self.dt = 0.06
         self.ref_vel = []
         self.axis_size = 50
         if self.filename is not None:
@@ -82,10 +82,10 @@ class WarthogEnv(gym.Env):
         self.prev_action = [0.,0.]
         self.omega_reward = 0
         self.vel_reward = 0
-        self.is_delayed_dynamics = False
-        self.delay_steps = 3
-        self.v_delay_data = [0.]*3
-        self.w_delay_data = [0.]*3
+        self.is_delayed_dynamics = True
+        self.delay_steps = 5
+        self.v_delay_data = [0.]*self.delay_steps
+        self.w_delay_data = [0.]*self.delay_steps
 
     def set_pose(self, x, y, th):
         self.pose = [x, y, th]

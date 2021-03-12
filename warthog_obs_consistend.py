@@ -46,6 +46,7 @@ def main():
     num_points = len(df.index)
 #    num_points = 10
     num_traj_point = 10
+    num_traj_point = num_points
     waypoint_dist = 0.5 
     print(num_points)
     #for each point in the file get the observation for training
@@ -62,33 +63,44 @@ def main():
                 if k == 1:
                     waypoint0 = np.array([df.iloc[way_idx]["x"],df.iloc[way_idx]["y"]])
                     waypoint_list.append(get_pose_from_df(df.iloc[way_idx]))
+                    way_pose = get_pose_from_df(df.iloc[way_idx])
+        #            out_file_h.writelines(f"{way_pose[0]}, {way_pose[1]}, {way_pose[2]}, {way_pose[3]}, {way_pose[4]}\n")
                 waypoint1 = np.array([df.iloc[way_idx]["x"],df.iloc[way_idx]["y"]])
                 if np.linalg.norm(waypoint0 - waypoint1) >= waypoint_dist:
                     waypoint_list.append(get_pose_from_df(df.iloc[way_idx]))
+                    way_pose = get_pose_from_df(df.iloc[way_idx])
+                    #out_file_h.writelines(f"{way_pose[0]}, {way_pose[1]}, {way_pose[2]}, {way_pose[3]}, {way_pose[4]}\n")
                     waypoint0 = np.array([df.iloc[way_idx]["x"],df.iloc[way_idx]["y"]])
             else:
                 break
             k = k+1
+#        break
+        #out_file_h.close()
+        #return()
+
         #if there aren't sufficinet points in the list then populate 
-        #the remaining list with zeros
+        # the remaining list with zeros
+        for j in waypoint_list:
+            warthog_env.waypoints_list.append(np.array([j[0], j[1], j[2], j[3]]))
         for j in range(k, num_traj_point - 1):
             waypoint_list.append(np.array([0., 0., 0., 0., 0.]))
-        #print(waypoint_list)
-        war_pose = get_pose_from_df(df.iloc[i])
-        #warthog_env.set_pose(war_pose[0]+0.1, war_pose[1]+0.05, war_pose[2])
-        warthog_env.set_pose(war_pose[0], war_pose[1], war_pose[2])
-        warthog_env.set_twist(war_pose[3], war_pose[4])
-        warthog_env.waypoints_list = []
-        #append the observation in the waypoint list
-        for i in waypoint_list:
-            warthog_env.waypoints_list.append(np.array([i[0], i[1], i[2], i[3]]))
         warthog_env.num_waypoints = len(warthog_env.waypoints_list)
-        obs = warthog_env.get_observation()
+        #print(waypoint_list)
+        for k in range(0, num_points-1):
+            war_pose = get_pose_from_df(df.iloc[k])
+            command = get_action_from_df(df.iloc[k])
+
+        #warthog_env.set_pose(war_pose[0]+0.1, war_pose[1]+0.05, war_pose[2])
+            warthog_env.set_pose(war_pose[0], war_pose[1], war_pose[2])
+            warthog_env.set_twist(war_pose[3], war_pose[4])
+        #append the observation in the waypoint list
+            obs = warthog_env.get_observation()
         #print(obs)
         #write the observation to the file
-        for k in obs:
-            out_file_h.writelines(f"{k}, ")
-        out_file_h.writelines(f"{command[0]}, {command[1]}\n")
+            for ob in obs:
+                out_file_h.writelines(f"{ob}, ")
+            out_file_h.writelines(f"{command[0]}, {command[1]}\n")
+        break;
     out_file_h.close()
 
 
