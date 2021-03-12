@@ -49,7 +49,7 @@ def main():
     print(len(train))
     print(num_data_points)
 
-    n_epoch = 10
+    n_epoch = 1000
     graph = model.sess.graph
     with model.sess as sess:
         target_ph = tf.placeholder(dtype=tf.float32, shape=[None, 2])
