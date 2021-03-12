@@ -23,7 +23,7 @@ class DataCollector:
         """
         self.env = WarthogEnv(None)
         self.cmd_vel_topic = rospy.get_param('~cmd_vel_topic', 'warthog_velocity_controller/cmd_vel')
-        self.out_file = rospy.get_param('~out_file_name', 'sim_remote_poses_delayed.csv')
+        self.out_file = rospy.get_param('~out_file_name', 'sim_remote_poses_delayed10.csv')
         self.file_h = open(self.out_file, 'w')
         self.file_h.writelines(f"x,y,th,vel,w,v_cmd,w_cmd\n")
         rospy.Subscriber(self.cmd_vel_topic, Twist, self.cmd_vel_cb)
