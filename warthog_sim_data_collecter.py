@@ -23,14 +23,15 @@ class DataCollector:
         """
         self.env = WarthogEnv(None)
         self.cmd_vel_topic = rospy.get_param('~cmd_vel_topic', 'warthog_velocity_controller/cmd_vel')
-        self.out_file = rospy.get_param('~out_file_name', 'sim_remote_poses.csv')
+        self.out_file = rospy.get_param('~out_file_name', 'sim_remote_poses_delayed.csv')
         self.file_h = open(self.out_file, 'w')
         self.file_h.writelines(f"x,y,th,vel,w,v_cmd,w_cmd\n")
         rospy.Subscriber(self.cmd_vel_topic, Twist, self.cmd_vel_cb)
     def render_env(self):
         """Render warthog environment"""
-        self.env.render()
-        time.sleep(0.05)
+        #self.env.render()
+        #time.sleep(0.05)
+        pass
     def cmd_vel_cb(self, msg):
         """Ros command velocity callback"""
         x = self.env.pose[0]
@@ -50,7 +51,7 @@ def main():
     plt.pause(3)
     r = rospy.Rate(10)
     while(not rospy.is_shutdown()):
-        data_collector.env.render()
+        #data_collector.env.render()
         r.sleep()
     data_collector.file_h.close()
 
