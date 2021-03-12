@@ -28,8 +28,8 @@ plt.pause(2)
 
 model1 = PPO2('MlpPolicy', env, verbose=1)
 model = PPO2('MlpPolicy', env, verbose=1)
-model = PPO2.load('./policy/vel_weight8_stable9')
-#model = PPO2.load('./policy/after_train_const')
+#model = PPO2.load('./policy/vel_weight8_stable9')
+model = PPO2.load('./policy/after_train_const')
 model.env = model1.env
 act1 = []
 act2 = []
