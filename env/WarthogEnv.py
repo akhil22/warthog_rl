@@ -32,7 +32,7 @@ class WarthogEnv(gym.Env):
         self.horizon = 10
         self.dt = 0.06
         self.ref_vel = []
-        self.axis_size = 50
+        self.axis_size = 20
         if self.filename is not None:
             self._read_waypoint_file(self.filename)
         self.max_vel = 1
@@ -282,7 +282,7 @@ class WarthogEnv(gym.Env):
         self.rect.remove()
         self.rect = Rectangle((xl, yl), self.warthog_width * 2,
                               self.warthog_length * 2,
-                              180.0 * self.pose[2] / math.pi)
+                              180.0 * self.pose[2] / math.pi, facecolor='blue')
         self.text.remove()
         self.text = self.ax.text(
             self.pose[0] + 1,

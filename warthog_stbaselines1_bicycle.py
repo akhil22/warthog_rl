@@ -20,6 +20,7 @@ import numpy as np
 
 #env = WarthogEnv('unity_remote.txt')
 env = WarthogEnv('sim_remote_waypoint.txt')
+#env = WarthogEnv('real_remote_waypoints.txt')
 plt.pause(2)
 
 
@@ -29,10 +30,12 @@ plt.pause(2)
 model1 = PPO2('MlpPolicy', env, verbose=1)
 model = PPO2('MlpPolicy', env, verbose=1)
 #model.save('./policy/zero_train')
-model = PPO2.load('./policy/vel_weight8_stable9')
+#model = PPO2.load('./policy/vel_weight8_stable9')
 #model = PPO2.load('./policy/after_train_const')
+model = PPO2.load('./policy/after_train_const_delay')
 #model = PPO2.load('./policy/after_train_const_zero')
 #model = PPO2.load('./policy/zero_train')
+#model = PPO2.load('./policy/real_train_const_zero')
 model.env = model1.env
 act1 = []
 act2 = []
