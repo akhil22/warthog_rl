@@ -13,71 +13,69 @@ from matplotlib import pyplot as plt
 from env.WarthogEnv import WarthogEnv
 import time
 import numpy as np
+import sys
 
 
 # In[4]:
 
-
-#env = WarthogEnv('unity_remote.txt')
-env = WarthogEnv('sim_remote_waypoint.txt')
-#env = WarthogEnv('real_remote_waypoints.txt')
-plt.pause(2)
-
-
-# In[5]:
-
-
-model1 = PPO2('MlpPolicy', env, verbose=1)
-model = PPO2('MlpPolicy', env, verbose=1)
-#model.save('./policy/zero_train')
-#model = PPO2.load('./policy/vel_weight8_stable9')
-#model = PPO2.load('./policy/after_train_const')
-model = PPO2.load('./policy/after_train_const_delay')
-#model = PPO2.load('./policy/after_train_const_zero')
-#model = PPO2.load('./policy/zero_train')
-#model = PPO2.load('./policy/real_train_const_zero')
-model.env = model1.env
-act1 = []
-act2 = []
-reward = 0
+def main():
+    #env = WarthogEnv('unity_remote.txt')
+    env = WarthogEnv('sim_remote_waypoint.txt')
+    #env = WarthogEnv('real_remote_waypoints.txt')
+    plt.pause(2)
+    model1 = PPO2('MlpPolicy', env, verbose=1)
+    model = PPO2('MlpPolicy', env, verbose=1)
+    #model.save('./policy/zero_train')
+    #model = PPO2.load('./policy/vel_weight8_stable9')
+    #model = PPO2.load('./policy/after_train_const')
+    #model = PPO2.load('./policy/after_train_const_delay')
+    model = PPO2.load(sys.argv[1])
+    #model = PPO2.load('./policy/after_train_const_zero')
+    #model = PPO2.load('./policy/zero_train')
+    #model = PPO2.load('./policy/real_train_const_zero')
+    model.env = model1.env
+    act1 = []
+    act2 = []
+    reward = 0
     #envg = model.get_env()
-obs = env.reset()
+    obs = env.reset()
     #t1 = time.time()
-for i in range(3000):
-      #  t2 = time.time()
+    for i in range(3000):
+        #  t2 = time.time()
         #action, _states = model.predict(obs, deterministic=False) 
-    action, _states = model.predict(obs, deterministic = True)
-       # print(action)
-    act1.append(np.clip(action[0], 0 ,1)*4)
-    act2.append(np.clip(action[1], -1 ,1)*2.5)
+        action, _states = model.predict(obs, deterministic = True)
+        # print(action)
+        act1.append(np.clip(action[0], 0 ,1)*4)
+        act2.append(np.clip(action[1], -1 ,1)*2.5)
         #act2.append(reward) 
         #action[0] = np.clip(action[0], 0, 1)*4
         #action[1] = np.clip(action[1], -1, 1)*2.5
-    obs, reward, done, info = env.step(action)
+        obs, reward, done, info = env.step(action)
         #print(t2-t1)
         #if t2 -t1 < 0.3:
-           # time.sleep(0.3 - (t2-t1))
-        #t1 = t2
-    #print(action)
-    env.render()
-    #time.sleep(2)
-    if done:
-        obs = env.reset()
+            # time.sleep(0.3 - (t2-t1))
+            #t1 = t2
+            #print(action)
+        env.render()
+            #time.sleep(2)
+        if done:
+            obs = env.reset()
 
 
 # In[6]:
 
-plt.figure(2)
-plt.plot(act1)
+    plt.figure(2)
+    plt.plot(act1)
 
 
 # In[7]:
 
 
-plt.figure(3)
-plt.plot(act2)
-plt.show()
-
+    plt.figure(3)
+    plt.plot(act2)
+    plt.show()
+if __name__=='__main__':
+    main()
 
 # In[ ]:
 

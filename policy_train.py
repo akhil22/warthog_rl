@@ -33,6 +33,7 @@ def main():
     Args:
         sys.argv[1]: ppo policy file for retraining
         sys.argv[2]: training data file for policy
+        sys.argv[3]: output policy file to save trained policy
      
     """
     env = WarthogEnv('unity_remote.txt')
@@ -120,7 +121,8 @@ def main():
         #model.save("./policy/after_train_const")
         #model.save("./policy/after_train_const_zero")
         #model.save("./policy/real_train_const_zero")
-        model.save("./policy/after_train_const_delay")
+        #model.save("./policy/after_train_const_delay")
+        model.save(sys.argv[3])
 
     plt.grid()
     plt.show()
