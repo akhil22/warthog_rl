@@ -21,9 +21,9 @@ def main():
     print(df)
     for i in range(0, num_waypoints):
         current_pose = PoseStamped()
-        current_pose.pose.position.x = df.iloc[i]["0.0"]
-        current_pose.pose.position.y = df.iloc[i][" 0.0"]
-        current_pose.pose.position.z = df.iloc[i][" 0.0.2"]
+        current_pose.pose.position.x = df.iloc[i]["x"]
+        current_pose.pose.position.y = df.iloc[i]["y"]
+        current_pose.pose.position.z = df.iloc[i]["v"]
         waypoint_path.poses.append(current_pose)
 
     path_pub.publish(waypoint_path)
