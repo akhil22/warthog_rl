@@ -51,7 +51,7 @@ def main():
     plt.pause(3)
     r = rospy.Rate(10)
     while(not rospy.is_shutdown()):
-        #data_collector.env.render()
+        data_collector.env.render()
         r.sleep()
     data_collector.file_h.close()
 
