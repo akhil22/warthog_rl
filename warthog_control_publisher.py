@@ -5,15 +5,15 @@ def main():
     rospy.init_node("command_publisher_node")
     cmd_vel_topic = rospy.get_param("~cmd_topic", "/warthog_velocity_controller/cmd_vel")
     cmd_vel_pub = rospy.Publisher(cmd_vel_topic, Twist, queue_size = 1)
-    start_v = 2.
+    start_v = 1.
     start_w = -4.
     vel_samples = 5
     w_samples = 40
     for i in range(0,5 - int(start_v)):
         start_w = -4.
         r = rospy.Rate(1)
-        r.sleep()
-        r.sleep()
+        for o in range(0,50):
+            r.sleep()
         for j in range(0,40):
             t = 0 
             start_time = rospy.get_rostime()
@@ -32,6 +32,7 @@ def main():
         
         if rospy.is_shutdown():
             break
+        break
         start_v = start_v + 1
 
 if __name__=="__main__":
