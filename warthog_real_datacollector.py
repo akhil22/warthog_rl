@@ -39,6 +39,7 @@ class DataCollector:
         self.odom_sub = message_filters.Subscriber(self.odom_topic, Odometry)
         self.gps_odom_sub = message_filters.Subscriber(self.gps_odom_topic, Odometry)
         #self.ts = message_filters.ApproximateTimeSynchronizer([self.cmd_vel_sub, self.odom_sub],10, 1, allow_headerless=True)
+        #self.ts = message_filters.ApproximateTimeSynchronizer([self.cmd_vel_sub, self.odom_sub, self.gps_odom_sub],10, 1, allow_headerless=True)
         self.ts = message_filters.ApproximateTimeSynchronizer([self.cmd_vel_sub, self.odom_sub, self.gps_odom_sub],10, 1, allow_headerless=True)
         #self.cmd_odom_cb= None 
         #self.ts.registerCallback(self.cmd_odom_cb)
