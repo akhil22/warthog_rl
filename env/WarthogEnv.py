@@ -82,7 +82,7 @@ class WarthogEnv(gym.Env):
         self.prev_action = [0.,0.]
         self.omega_reward = 0
         self.vel_reward = 0
-        self.is_delayed_dynamics = True 
+        self.is_delayed_dynamics = False
         self.delay_steps = 5
         self.v_delay_data = [0.]*self.delay_steps
         self.w_delay_data = [0.]*self.delay_steps
@@ -245,6 +245,7 @@ class WarthogEnv(gym.Env):
         idx = np.random.randint(self.num_waypoints, size=1)
         #idx = [0]
         idx = idx[0]
+        idx = 880
         self.closest_idx = idx
         self.prev_closest_idx = idx
         self.pose[0] = self.waypoints_list[idx][0] + 0.1
@@ -258,6 +259,7 @@ class WarthogEnv(gym.Env):
                 self.waypoints_list[i][3] = self.max_vel
             else:
                 self.waypoints_list[i][3] = self.ref_vel[i]
+        self.max_vel = 2
         self.max_vel = self.max_vel + 1
         obs = self.get_observation()
         return obs

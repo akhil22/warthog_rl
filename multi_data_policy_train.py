@@ -59,7 +59,7 @@ def main():
     print(len(train))
     print(num_data_points)
 
-    n_epoch = 200
+    n_epoch = 400
     graph = model.sess.graph
     with model.sess as sess:
         target_ph = tf.placeholder(dtype=tf.float32, shape=[None, 2])
@@ -131,7 +131,7 @@ def main():
         #model.save("./policy/after_train_const_zero")
         #model.save("./policy/real_train_const_zero")
         #model.save("./policy/after_train_const_delay")
-        model.save("./policy/combine_trained")
+        model.save(f"./policy/combine_trained_may8_{n_epoch}")
         #model.save(sys.argv[3])
 
     plt.grid()

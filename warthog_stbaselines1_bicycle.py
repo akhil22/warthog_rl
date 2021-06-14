@@ -29,7 +29,7 @@ def main():
     #model = PPO2.load('./policy/vel_weight8_stable9')
     #model = PPO2.load('./policy/after_train_const')
     #model = PPO2.load('./policy/after_train_const_delay')
-    model = PPO2.load('./policy/combine_trained')
+    #model = PPO2.load('./policy/combine_trained')
     #model = PPO2.load(sys.argv[1])
     #model = PPO2.load('./policy/after_train_const_zero')
     #model = PPO2.load('./policy/zero_train')
