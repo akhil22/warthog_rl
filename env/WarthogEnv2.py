@@ -9,7 +9,7 @@ import matplotlib as mpl
 import time
 
 
-class WarthogEnv(gym.Env):
+class WarthogEnv_V2(gym.Env):
     def __init__(self, waypoint_file):
         super(WarthogEnv, self).__init__()
         self.action_space = spaces.Box(low=np.array([0.0, -1.5]),
@@ -32,7 +32,7 @@ class WarthogEnv(gym.Env):
         self.horizon = 10
         self.dt = 0.06
         self.ref_vel = []
-        self.axis_size = 20
+        self.axis_size = 50
         if self.filename is not None:
             self._read_waypoint_file(self.filename)
         self.max_vel = 1
@@ -83,9 +83,9 @@ class WarthogEnv(gym.Env):
         self.omega_reward = 0
         self.vel_reward = 0
         self.is_delayed_dynamics = False
-        self.delay_steps = 5
-        self.v_delay_data = [0.]*self.delay_steps
-        self.w_delay_data = [0.]*self.delay_steps
+        self.delay_steps = 3
+        self.v_delay_data = [0.]*3
+        self.w_delay_data = [0.]*3
 
     def set_pose(self, x, y, th):
         self.pose = [x, y, th]
@@ -245,7 +245,6 @@ class WarthogEnv(gym.Env):
         idx = np.random.randint(self.num_waypoints, size=1)
         #idx = [0]
         idx = idx[0]
-        #idx = 880
         self.closest_idx = idx
         self.prev_closest_idx = idx
         self.pose[0] = self.waypoints_list[idx][0] + 0.1
@@ -259,7 +258,6 @@ class WarthogEnv(gym.Env):
                 self.waypoints_list[i][3] = self.max_vel
             else:
                 self.waypoints_list[i][3] = self.ref_vel[i]
-        #self.max_vel = 2
         self.max_vel = self.max_vel + 1
         obs = self.get_observation()
         return obs
@@ -284,7 +282,7 @@ class WarthogEnv(gym.Env):
         self.rect.remove()
         self.rect = Rectangle((xl, yl), self.warthog_width * 2,
                               self.warthog_length * 2,
-                              180.0 * self.pose[2] / math.pi, facecolor='blue')
+                              180.0 * self.pose[2] / math.pi)
         self.text.remove()
         self.text = self.ax.text(
             self.pose[0] + 1,

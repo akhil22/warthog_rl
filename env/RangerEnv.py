@@ -9,7 +9,7 @@ import matplotlib as mpl
 import time
 
 
-class WarthogEnv(gym.Env):
+class RangerEnv(gym.Env):
     def __init__(self, waypoint_file):
         super(WarthogEnv, self).__init__()
         self.action_space = spaces.Box(low=np.array([0.0, -1.5]),
@@ -101,7 +101,7 @@ class WarthogEnv(gym.Env):
             y.append(self.waypoints_list[i][1])
         self.ax.plot(x, y, '+r')
 
-    def sim_warthog(self, v, w):
+    def sim_ranger(self, v, w):
         x = self.pose[0]
         y = self.pose[1]
         th = self.pose[2]
@@ -197,7 +197,7 @@ class WarthogEnv(gym.Env):
         action[0] = np.clip(action[0], 0, 1) * 4.0
         action[1] = np.clip(action[1], -1, 1) * 2.5
         self.action = action
-        self.sim_warthog(action[0], action[1])
+        self.sim_ranger(action[0], action[1])
         self.prev_closest_idx = self.closest_idx
         obs = self.get_observation()
         done = False
