@@ -7,20 +7,24 @@ from gym import spaces
 import csv
 import matplotlib as mpl
 import time
+import sys
+import mavs_interface as mavs
+import mavs_python_paths
 
 
 class RangerEnv(gym.Env):
     def __init__(self, waypoint_file):
-        super(WarthogEnv, self).__init__()
-        self.action_space = spaces.Box(low=np.array([0.0, -1.5]),
-                                       high=np.array([1.0, 1.5]),
-                                       shape=(2, ))
+        super(RangerEnv, self).__init__()
+        self.action_space = spaces.Box(low=np.array([0.0, 0.0, -1.]),
+                                       high=np.array([1.0, 1.0, 1.]),
+                                       shape=(3, ))
         self.observation_space = spaces.Box(low=-100,
                                             high=1000,
                                             shape=(42, ),
                                             dtype=np.float)
         self.filename = waypoint_file
         plt.ion
+        self.mavs_data_path = mavs_python_paths.mavs_data_path
         self.waypoints_list = []
         self.num_waypoints = 0
         self.pose = [0, 0, 0]
@@ -35,6 +39,9 @@ class RangerEnv(gym.Env):
         self.axis_size = 20
         if self.filename is not None:
             self._read_waypoint_file(self.filename)
+        self.veh = mavs.MavsRp3d()
+        self.mavs_env = mavs.MavsEnvironment()
+        self._mav_scene_init()
         self.max_vel = 1
         self.fig = plt.figure(dpi=100, figsize=(10, 10))
         self.ax = self.fig.add_subplot(111)
@@ -78,17 +85,18 @@ class RangerEnv(gym.Env):
         self.tprev = time.time()
         self.total_ep_reward = 0
         self.reward = 0
-        self.action = [0.,0.]
-        self.prev_action = [0.,0.]
+        self.action = [0., 0.]
+        self.prev_action = [0., 0.]
         self.omega_reward = 0
         self.vel_reward = 0
         self.is_delayed_dynamics = False
         self.delay_steps = 5
-        self.v_delay_data = [0.]*self.delay_steps
-        self.w_delay_data = [0.]*self.delay_steps
+        self.v_delay_data = [0.] * self.delay_steps
+        self.w_delay_data = [0.] * self.delay_steps
 
     def set_pose(self, x, y, th):
-        self.pose = [x, y, th]
+        self.veh.SetInitialPosition(x, y, 0.)
+        self.veh.SetInitialHeading(th)
 
     def set_twist(self, v, w):
         self.tiwst = [v, w]
@@ -101,7 +109,8 @@ class RangerEnv(gym.Env):
             y.append(self.waypoints_list[i][1])
         self.ax.plot(x, y, '+r')
 
-    def sim_ranger(self, v, w):
+    def sim_ranger(self, accel, brake, steer):
+        self.veh.Update(self.mavs_env, accel, steer, brake, self.dt)
         x = self.pose[0]
         y = self.pose[1]
         th = self.pose[2]
@@ -193,11 +202,12 @@ class RangerEnv(gym.Env):
         return obs
 
     def step(self, action):
-        self.ep_steps = self.ep_steps+1
-        action[0] = np.clip(action[0], 0, 1) * 4.0
-        action[1] = np.clip(action[1], -1, 1) * 2.5
+        self.ep_steps = self.ep_steps + 1
+        action[0] = np.clip(action[0], 0, 1)
+        action[1] = np.clip(action[1], 0, 1)
+        action[2] = np.clip(action[1], -1, 1)
         self.action = action
-        self.sim_ranger(action[0], action[1])
+        self.sim_ranger(action[0], action[1], action[2])
         self.prev_closest_idx = self.closest_idx
         obs = self.get_observation()
         done = False
@@ -220,19 +230,23 @@ class RangerEnv(gym.Env):
             done = True
             self.ep_steps = 0
         self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
-            4.5 - math.fabs(self.vel_error)) * (math.pi / 3. -
-                                                math.fabs(self.phi_error)) - math.fabs(self.action[0] - self.prev_action[0]) - 2*math.fabs(self.action[1])
-        self.omega_reward = -2*math.fabs(self.action[1])
+            4.5 - math.fabs(self.vel_error)) * (
+                math.pi / 3. - math.fabs(self.phi_error)) - math.fabs(
+                    self.action[0] -
+                    self.prev_action[0]) - 2 * math.fabs(self.action[1])
+        self.omega_reward = -2 * math.fabs(self.action[1])
         self.vel_reward = -math.fabs(self.action[0] - self.prev_action[0])
         #self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
         #    4.0 - math.fabs(self.vel_error)) * (math.pi / 3. -
-        #                                        math.fabs(self.phi_error)) - math.fabs(self.action[0] - self.prev_action[0]) - 1.3*math.fabs(self.action[1] - self.prev_action[1]) 
+        #                                        math.fabs(self.phi_error)) - math.fabs(self.action[0] - self.prev_action[0]) - 1.3*math.fabs(self.action[1] - self.prev_action[1])
         self.prev_action = self.action
         #if (self.prev_closest_idx == self.closest_idx
         #        or math.fabs(self.vel_error) > 1.5):
-        if self.waypoints_list[k][3] >= 2.5 and math.fabs(self.vel_error) > 1.5:
+        if self.waypoints_list[k][3] >= 2.5 and math.fabs(
+                self.vel_error) > 1.5:
             self.reward = 0
-        elif self.waypoints_list[k][3] < 2.5 and math.fabs(self.vel_error) >0.5:
+        elif self.waypoints_list[k][3] < 2.5 and math.fabs(
+                self.vel_error) > 0.5:
             self.reward = 0
         self.total_ep_reward = self.total_ep_reward + self.reward
         #self.render()
@@ -265,8 +279,14 @@ class RangerEnv(gym.Env):
         return obs
 
     def render(self, mode='human'):
-        self.ax.set_xlim([self.pose[0] - self.axis_size/2.0, self.pose[0] + self.axis_size/2.0])
-        self.ax.set_ylim([self.pose[1] - self.axis_size/2.0, self.pose[1] + self.axis_size/2.0])
+        self.ax.set_xlim([
+            self.pose[0] - self.axis_size / 2.0,
+            self.pose[0] + self.axis_size / 2.0
+        ])
+        self.ax.set_ylim([
+            self.pose[1] - self.axis_size / 2.0,
+            self.pose[1] + self.axis_size / 2.0
+        ])
         total_diag_ang = self.diag_ang + self.pose[2]
         xl = self.pose[0] - self.warthog_diag * math.cos(total_diag_ang)
         yl = self.pose[1] - self.warthog_diag * math.sin(total_diag_ang)
@@ -282,9 +302,11 @@ class RangerEnv(gym.Env):
         #self.rect.set_height(self.warthog_length * 2)
         #del self.rect
         self.rect.remove()
-        self.rect = Rectangle((xl, yl), self.warthog_width * 2,
+        self.rect = Rectangle((xl, yl),
+                              self.warthog_width * 2,
                               self.warthog_length * 2,
-                              180.0 * self.pose[2] / math.pi, facecolor='blue')
+                              180.0 * self.pose[2] / math.pi,
+                              facecolor='blue')
         self.text.remove()
         self.text = self.ax.text(
             self.pose[0] + 1,
@@ -342,3 +364,85 @@ class RangerEnv(gym.Env):
             self.waypoints_list[i + 1][2] = self.waypoints_list[i][2]
             self.num_waypoints = i + 2
         pass
+
+    def _mav_scene_init(self):
+        random_scene = mavs.MavsRandomScene()
+        random_scene.terrain_width = 250.0
+        random_scene.terrain_length = 250.0
+        random_scene.lo_mag = 0.0
+        random_scene.hi_mag = 0.05
+        random_scene.mesh_resolution = 0.3
+        random_scene.plant_density = 0.0
+        random_scene.trail_width = 0.0
+        random_scene.track_width = 0.0
+        random_scene.wheelbase = 0.0
+        random_scene.surface_roughness_type = "variable"
+        scene_name = 'bumpy_surface'
+        random_scene.basename = scene_name
+        random_scene.eco_file = 'american_pine_forest.json'
+        #random_scene.eco_file = 'american_southwest_desert.json'
+        random_scene.path_type = 'Ridges'
+        random_scene.CreateScene()
+
+        # Create a MAVS environment and add the scene to it
+        #env.SetScene(scene.scene)
+        self.mavs_env.SetScene(random_scene.scene)
+
+        # Set environment properties
+        self.mavs_env.SetTime(13)  # 0-23
+        self.mavs_env.SetFog(0.0)  # 0.0-100.0
+        self.mavs_env.SetSnow(0.0)  # 0-25
+        self.mavs_env.SetTurbidity(7.0)  # 2-10
+        self.mavs_env.SetAlbedo(0.1)  # 0-1
+        self.mavs_env.SetCloudCover(0.5)  # 0-1
+        self.mavs_env.SetRainRate(0.0)  # 0-25
+        self.mavs_env.SetWind([2.5, 1.0])  # Horizontal windspeed in m/s
+
+        #Create and load a MAVS vehicle
+        # vehicle files are in the mavs "data/vehicles/rp3d_vehicles" folder
+        #veh_file = 'forester_2017_rp3d.json'
+        veh_file = 'mrzr4_tires.json'
+        #veh_file = 'clearpath_warthog.json'
+        #veh_file = 'hmmwv_rp3d.json'
+        #veh_file = 'mrzr4.json'
+        #veh_file = 'sedan_rp3d.json'
+        #veh_file = 'cucv_laredo_rp3d.json'
+        self.veh.Load(mavs_data_path + '/vehicles/rp3d_vehicles/' + veh_file)
+        # Starting point for the vehicle
+        #veh.SetInitialPosition(-52.5, 7.5, 0.0) # in global ENU
+        self.veh.SetInitialPosition(100.0, 0.0, 0.0)  # in global ENU
+        #veh.SetInitialPosition(65.125, 35.0, 0.0) # in global ENU
+        # Initial Heading for the vehicle, 0=X, pi/2=Y, pi=-X
+        self.veh.SetInitialHeading(0.0)  # in radians
+        #veh.SetInitialHeading(-1.57) # in radians
+        self.veh.Update(self.mavs_env, 0.0, 0.0, 1.0, 0.000001)
+
+        # Create a window for driving the vehicle with the W-A-S-D keys
+        # window must be highlighted to input driving commands
+        drive_cam = mavs.MavsCamera()
+        # nx,ny,dx,dy,focal_len
+        drive_cam.Initialize(256, 256, 0.0035, 0.0035, 0.0035)
+        # offset of camera from vehicle CG
+        drive_cam.SetOffset([-10.0, 0.0, 3.0], [1.0, 0.0, 0.0, 0.0])
+        # Set camera compression and gain
+        #drive_cam.SetGammaAndGain(0.6,1.0)
+        drive_cam.SetGammaAndGain(0.5, 2.0)
+        # Turn off shadows for this camera for efficiency purposes
+        drive_cam.RenderShadows(True)
+
+        front_cam = mavs.MavsCamera()
+        # nx,ny,dx,dy,focal_len
+        front_cam.Initialize(256, 256, 0.0035, 0.0035, 0.0035)
+        # offset of camera from vehicle CG
+        angle = 135.0
+        front_cam.SetOffset([3.5, -2.6, 0.0], [
+            math.cos(0.5 * math.radians(angle)), 0.0, 0.0,
+            math.sin(0.5 * math.radians(angle))
+        ])
+        #angle = 90.0
+        #front_cam.SetOffset([1.5,-2.6,0.0],[math.cos(0.5*math.radians(angle)),0.0, 0.0, math.sin(0.5*math.radians(angle))])
+        # Set camera compression and gain
+        #drive_cam.SetGammaAndGain(0.6,1.0)
+        front_cam.SetGammaAndGain(0.5, 2.0)
+        # Turn off shadows for this camera for efficiency purposes
+        front_cam.RenderShadows(True)
