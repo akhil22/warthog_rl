@@ -297,16 +297,17 @@ class RangerEnv(gym.Env):
         #self.drive_cam = mavs.MavsCamera()
         #self.front_cam = mavs.MavsCamera()
         #self._mav_scene_init()
-        #self.veh.UnloadVehicle()
+        self.veh.UnloadVehicle()
         #self.veh.__del__()
-        #del self.veh
-        #self.veh = mavs.MavsRp3d()
-        #veh_file = 'mrzr4_tires.json'
-        #self.veh.Load(self.mavs_data_path + '/vehicles/rp3d_vehicles/' + veh_file)
+        self.veh2 = mavs.MavsRp3d()
+        veh_file = 'mrzr4_tires.json'
+        self.veh2.Load(self.mavs_data_path + '/vehicles/rp3d_vehicles/' + veh_file)
         #self._mav_scene_init()
-        self.veh.SetInitialPosition(self.pose[0], self.pose[1], 0)
-        self.veh.SetInitialHeading(self.pose[2])
-        self.veh.Update(self.mavs_env, 0.0, 0.0, 1.0, 0.000001)
+        self.veh2.SetInitialPosition(self.pose[0], self.pose[1], 0)
+        self.veh2.SetInitialHeading(self.pose[2])
+        self.veh2.Update(self.mavs_env, 0.0, 0.0, 1.0, 0.000001)
+        self.veh = self.veh2
+        del self.veh2
      
         self.xpose = [self.pose[0]] * self.n_traj
         self.ypose = [self.pose[1]] * self.n_traj
