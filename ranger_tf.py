@@ -5,7 +5,7 @@ from stable_baselines.common.policies import MlpPolicy
 from stable_baselines.common.vec_env import SubprocVecEnv
 from stable_baselines.common import set_global_seeds, make_vec_env
 from stable_baselines import PPO2
-from env.RangerEnv import RangerEnv
+from env.RangerEnv_vis import RangerEnv
 from matplotlib import pyplot as plt
 
 
@@ -31,10 +31,10 @@ if __name__ == '__main__':
     env_id = "CartPole-v1"
     num_cpu = 1  # Number of processes to use
     # Create the vectorized environment
-    # env = SubprocVecEnv([make_env(env_id, i) for i in range(num_cpu)])
-    env = RangerEnv('unity_remote.txt')
-    plt.pause(2)
-    fname = './policy/ranger_weight9_stable'
+    env = SubprocVecEnv([make_env(env_id, i) for i in range(num_cpu)])
+    #env = RangerEnv('unity_remote.txt')
+    #plt.pause(2)
+    fname = './policy/ranger_weight2_stable'
 
     # Stable Baselines provides you with make_vec_env() helper
     # which does exactly the previous steps for you:

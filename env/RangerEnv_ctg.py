@@ -8,6 +8,7 @@ import csv
 import matplotlib as mpl
 import time
 import sys
+sys.path.append(r'C:/Users/cgoodin/Desktop/vm_shared/shared_repos/mavs/src/mavs_python')
 import mavs_interface as mavs
 import mavs_python_paths
 from pyquaternion import Quaternion as qut
@@ -40,12 +41,21 @@ class RangerEnv(gym.Env):
         self.axis_size = 20
         if self.filename is not None:
             self._read_waypoint_file(self.filename)
-        self.random_scene = mavs.MavsRandomScene()
-        self.veh = mavs.MavsRp3d()
+        self.scene = mavs.MavsEmbreeScene()
         self.mavs_env = mavs.MavsEnvironment()
-        self.drive_cam = mavs.MavsCamera()
-        self.front_cam = mavs.MavsCamera()
-        self._mav_scene_init()
+        #self.scene.Load("./bumpy_surface_scene.json")
+        self.veh = mavs.MavsRp3d()
+        #self.random_scene = mavs.MavsRandomScene()
+        #self.scene = mavs.MavsEmbreeScene()
+        #self.veh = mavs.MavsRp3d()
+        #self.mavs_env = mavs.MavsEnvironment()
+        #self.drive_cam = mavs.MavsCamera()
+        #self.front_cam = mavs.MavsCamera()
+        #self.veh = None
+        #self.mavs_env = None
+        #self.drive_cam = None 
+        #self.front_cam = None 
+        self._mav_scene_init(True)
         self.max_vel = 1
         self.fig = plt.figure(dpi=100, figsize=(10, 10))
         self.ax = self.fig.add_subplot(111)
@@ -116,9 +126,9 @@ class RangerEnv(gym.Env):
         self.ax.plot(x, y, '+r')
 
     def sim_ranger(self, accel, brake, steer):
-        self.veh.Update(self.mavs_env, accel, steer, brake, 0.01)
+        self.veh.Update(self.mavs_env, accel, steer, brake, self.dt)
         position, orientation, linear_vel, angular_vel, linear_accel, angular_accel = self.veh.GetFullState();
-        self.mavs_env.AdvanceTime(0.01)
+        self.mavs_env.AdvanceTime(self.dt)
         '''
         x = self.pose[0]
         y = self.pose[1]
@@ -146,15 +156,16 @@ class RangerEnv(gym.Env):
         self.pose[1] = position[1]
         quat = qut((orientation[0], orientation[1], orientation[2], orientation[3]))
         self.pose[2] = quat.radians*np.sign(orientation[3])
-        self.twist[0] = linear_vel[0]
+        self.twist[0] = np.sqrt(linear_vel[0]*linear_vel[0] + linear_vel[1]*linear_vel[1]) * np.cos(math.atan2(linear_vel[1], linear_vel[0] - self.pose[2]))
         self.twist[1] = angular_vel[2]
         if self.curr_step % 3 == 0 and self.display_mavs:
-            self.drive_cam.SetPose(position, orientation)
-            self.drive_cam.Update(self.mavs_env, self.dt)
-            self.drive_cam.Display()
-            self.front_cam.SetPose(position, orientation)
-            self.front_cam.Update(self.mavs_env, self.dt)
-            self.front_cam.Display()
+            pass
+            #self.drive_cam.SetPose(position, orientation)
+            #self.drive_cam.Update(self.mavs_env, self.dt)
+            #self.drive_cam.Display()
+            #self.front_cam.SetPose(position, orientation)
+            #self.front_cam.Update(self.mavs_env, self.dt)
+            #self.front_cam.Display()
         self.curr_step = self.curr_step + 1
 
     def zero_to_2pi(self, theta):
@@ -229,7 +240,7 @@ class RangerEnv(gym.Env):
         self.ep_steps = self.ep_steps + 1
         action[0] = np.clip(action[0], 0, 1)
         action[1] = np.clip(action[1], 0, 1)
-        action[2] = np.clip(action[1], -1, 1)
+        action[2] = np.clip(action[2], -1, 1)
         self.action = action
         self.sim_ranger(action[0], action[1], action[2])
         self.prev_closest_idx = self.closest_idx
@@ -248,16 +259,19 @@ class RangerEnv(gym.Env):
         self.vel_error = self.waypoints_list[k][3] - self.twist[0]
         self.crosstrack_error = self.closest_dist * math.sin(yaw_error)
         if (math.fabs(self.crosstrack_error) > 1.5
-                or math.fabs(self.phi_error) > 1.4):
+                or math.fabs(self.phi_error) > 1.4 or self.closest_dist > 3.0):
             done = True
         if self.ep_steps == self.max_ep_steps:
             done = True
             self.ep_steps = 0
+        #self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
+        #    4.5 - math.fabs(self.vel_error)) * (
+        ##        math.pi / 3. - math.fabs(self.phi_error)) - math.fabs(
+        #            self.action[0] -
+        #            self.prev_action[0]) - 2 * math.fabs(self.action[1])
         self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
             4.5 - math.fabs(self.vel_error)) * (
-                math.pi / 3. - math.fabs(self.phi_error)) - math.fabs(
-                    self.action[0] -
-                    self.prev_action[0]) - 2 * math.fabs(self.action[1])
+                math.pi / 3. - math.fabs(self.phi_error))
         self.omega_reward = -2 * math.fabs(self.action[1])
         self.vel_reward = -math.fabs(self.action[0] - self.prev_action[0])
         #self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
@@ -289,20 +303,30 @@ class RangerEnv(gym.Env):
         self.pose[0] = self.waypoints_list[idx][0] + 0.1
         self.pose[1] = self.waypoints_list[idx][1] + 0.1
         self.pose[2] = self.waypoints_list[idx][2] + 0.01
-        print("printing actor ids")
+        #print("printing actor ids")
         #print(self.mavs_env.actor_ids)
         #self.random_scene.DeleteCurrentScene()
         #self.veh = mavs.MavsRp3d()
         #self.mavs_env = mavs.MavsEnvironment()
         #self.drive_cam = mavs.MavsCamera()
         #self.front_cam = mavs.MavsCamera()
-        #self._mav_scene_init()
-        self.veh.UnloadVehicle()
+        #self.veh = None
+        #self.mavs_env = None
+        #del self.veh
+       # del self.scene
+       # del self.mavs_env
+        #self.veh.UnloadVehicle()
+        #del self.veh
+        #self.scene.DeleteCurrentScene()
+        #self.mavs_env.DeleteEnvironment()
+        #self._mav_scene_init(True)
         #self.veh.__del__()
-        self.veh2 = mavs.MavsRp3d()
-        veh_file = 'mrzr4_tires.json'
-        self.veh.Load(self.mavs_data_path + '/vehicles/rp3d_vehicles/' + veh_file)
-        print("after vehicle loading")
+        del self.veh
+        self._mav_scene_init(True)
+        #self.veh = mavs.MavsRp3d()
+        #veh_file = 'mrzr4_tires.json'
+        #self.veh.Load(self.mavs_data_path + '/vehicles/rp3d_vehicles/' + veh_file)
+       # print("after vehicle loading")
         #self._mav_scene_init()
         #position = self.veh.GetPosition()
         #print("\npython vehicle position in reset before init", position)
@@ -311,7 +335,7 @@ class RangerEnv(gym.Env):
         #print("after python postion setting", position)
         self.veh.Update(self.mavs_env, 0.0, 0.0, 1.0, 0.00001)
         position = self.veh.GetPosition()
-        print("python vehicle position in reset 1st instance", position)
+       # print("python vehicle position in reset 1st instance", position)
         #self.veh = self.veh2
         #del self.veh2
      
@@ -328,12 +352,12 @@ class RangerEnv(gym.Env):
         obs = self.get_observation()
         self.curr_step = 0
         position = self.veh.GetPosition()
-        print("python vehicle position in reset 2nd instance", position)
+        #print("python vehicle position in reset 2nd instance", position)
         return obs
 
     def render(self, mode='human'):
         position = self.veh.GetPosition()
-        print("position in render", position)
+        #print("position in render", position)
         self.ax.set_xlim([
             self.pose[0] - self.axis_size / 2.0,
             self.pose[0] + self.axis_size / 2.0
@@ -420,29 +444,51 @@ class RangerEnv(gym.Env):
             self.num_waypoints = i + 2
         pass
 
-    def _mav_scene_init(self):
+    def _mav_scene_init(self, is_first_call):
+        #self.scene = mavs.MavsEmbreeScene()
+        #self.scene.Load("./bumpy_surface_scene.json")
+        #self.mavs_env = mavs.MavsEnvironment()
+        #self.drive_cam = mavs.MavsCamera()
+        #self.front_cam = mavs.MavsCamera()
         #self.random_scene = mavs.MavsRandomScene()
-        self.random_scene.terrain_width = 550.0
-        self.random_scene.terrain_length = 550.0
-        self.random_scene.lo_mag = 0.0
-        self.random_scene.hi_mag = 0.0
-        self.random_scene.mesh_resolution = 0.3
-        self.random_scene.plant_density = 0.0
-        self.random_scene.trail_width = 0.0
-        self.random_scene.track_width = 0.0
-        self.random_scene.wheelbase = 0.0
-        self.random_scene.surface_roughness_type = "variable"
-        scene_name = 'bumpy_surface'
-        self.random_scene.basename = scene_name
-        self.random_scene.eco_file = 'american_pine_forest.json'
-        #random_scene.eco_file = 'american_southwest_desert.json'
-        self.random_scene.path_type = 'Ridges'
-        self.random_scene.CreateScene()
+        #self.random_scene.terrain_width = 550.0
+        #self.random_scene.terrain_length = 550.0
+        #self.random_scene.lo_mag = 0.0
+        #self.random_scene.hi_mag = 0.0
+        #self.random_scene.mesh_resolution = 0.3
+        #self.random_scene.plant_density = 0.0
+        #self.random_scene.trail_width = 0.0
+        #self.random_scene.track_width = 0.0
+        #self.random_scene.wheelbase = 0.0
+        #self.random_scene.surface_roughness_type = "variable"
+        #scene_name = 'bumpy_surface'
+        #self.random_scene.basename = scene_name
+        #self.random_scene.eco_file = 'american_pine_forest.json'
+        ##random_scene.eco_file = 'american_southwest_desert.json'
+        #self.random_scene.path_type = 'Ridges'
+        #self.random_scene.CreateScene()
 
-        # Create a MAVS environment and add the scene to it
-        #env.SetScene(scene.scene)
-        self.mavs_env.SetScene(self.random_scene.scene)
+        ## Create a MAVS environment and add the scene to it
+        ##env.SetScene(scene.scene)
+        #self.mavs_env.SetScene(self.random_scene.scene)
 
+        #mavs_scenefile = "/scenes/surface_only.json"
+        #self.mavs_env = mavs.MavsEnvironment()
+        #self.drive_cam = mavs.MavsCamera()
+        #self.front_cam = mavs.MavsCamera()
+        #self.scene.Load("./bumpy_surface_scene.json")
+        if not is_first_call:
+            self.scene = mavs.MavsEmbreeScene()
+            self.mavs_env = mavs.MavsEnvironment()
+            self.veh = mavs.MavsRp3d()
+            #self.drive_cam = mavs.MavsCamera()
+            #self.front_cam = mavs.MavsCamera()
+
+        #self.mavs_env.SetScene(self.scene)
+        #self.veh = mavs.MavsRp3d()
+        print("loaded scene")
+        self.veh = mavs.MavsRp3d()
+        self.scene.Load("./bumpy_surface_scene.json")
         # Set environment properties
         self.mavs_env.SetTime(13)  # 0-23
         self.mavs_env.SetFog(0.0)  # 0.0-100.0
@@ -452,6 +498,9 @@ class RangerEnv(gym.Env):
         self.mavs_env.SetCloudCover(0.5)  # 0-1
         self.mavs_env.SetRainRate(0.0)  # 0-25
         self.mavs_env.SetWind([2.5, 1.0])  # Horizontal windspeed in m/s
+        self.mavs_env.SetScene(self.scene)
+        print("init vehicle")
+        #self.veh = mavs.MavsRp3d()
 
         # Create and load a MAVS vehicle
         # vehicle files are in the mavs "data/vehicles/rp3d_vehicles" folder
@@ -463,6 +512,7 @@ class RangerEnv(gym.Env):
         #veh_file = 'sedan_rp3d.json'
         #veh_file = 'cucv_laredo_rp3d.json'
         self.veh.Load(self.mavs_data_path + '/vehicles/rp3d_vehicles/' + veh_file)
+        print("init vehicle done")
         # Starting point for the vehicle
         #veh.SetInitialPosition(-52.5, 7.5, 0.0) # in global ENU
         #self.veh.SetInitialPosition(100.0, 0.0, 0.0)  # in global ENU
