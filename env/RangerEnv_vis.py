@@ -39,6 +39,9 @@ class RangerEnv(gym.Env):
         self.horizon = 10
         self.dt = 0.06
         self.ref_vel = []
+        self.brake_cmd =[0]*30
+        self.steer_cmd =[0]*30
+        self.accel_cmd =[0]*30
         self.axis_size = 20
         if self.filename is not None:
             self._read_waypoint_file(self.filename)
@@ -50,11 +53,17 @@ class RangerEnv(gym.Env):
         self.front_cam = mavs.MavsCamera()
         self._mav_scene_init()
         self.max_vel = 1
-        self.fig = plt.figure(dpi=100, figsize=(10, 10))
-        self.ax = self.fig.add_subplot(111)
+        self.fig = plt.figure(dpi=100, figsize=(30, 30))
+        self.ax = self.fig.add_subplot(221)
+        self.ax_brake = self.fig.add_subplot(222)
+        self.ax_steer= self.fig.add_subplot(223)
+        self.ax_accel= self.fig.add_subplot(224)
         #self.ax.set_box_aspect(1)
         self.ax.set_xlim([-4, 4])
         self.ax.set_ylim([-4, 4])
+        self.ax_accel.set_ylim([0, 1])
+        self.ax_brake.set_ylim([0, 1])
+        self.ax_steer.set_ylim([-1, 1])
         self.warthog_length = 0.5 / 2.0
         self.warthog_width = 1.0 / 2.0
         self.warthog_diag = math.sqrt(self.warthog_width**2 +
@@ -94,8 +103,8 @@ class RangerEnv(gym.Env):
         self.tprev = time.time()
         self.total_ep_reward = 0
         self.reward = 0
-        self.action = [0., 0.]
-        self.prev_action = [0., 0.]
+        self.action = [0., 0., 0.]
+        self.prev_action = [0., 0., 0.]
         self.omega_reward = 0
         self.vel_reward = 0
         self.is_delayed_dynamics = False
@@ -242,6 +251,12 @@ class RangerEnv(gym.Env):
         action[0] = np.clip(action[0], 0, 1)
         action[1] = np.clip(action[1], 0, 1)
         action[2] = np.clip(action[2], -1, 1)
+        self.accel_cmd.append(action[0])
+        self.brake_cmd.append(action[1])
+        self.steer_cmd.append(action[2])
+        del self.accel_cmd[0]
+        del self.brake_cmd[0]
+        del self.steer_cmd[0]
         self.action = action
         self.sim_ranger(action[0], action[1], action[2])
         self.prev_closest_idx = self.closest_idx
@@ -273,8 +288,9 @@ class RangerEnv(gym.Env):
         #self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
         #    4.5 - math.fabs(self.vel_error)) * (
         #        math.pi / 3. - math.fabs(self.phi_error))
+        action_penalty = - 2*math.fabs(action[0] - self.prev_action[0]) - 2*math.fabs(action[1] - self.prev_action[1]) - math.fabs(action[2] - self.prev_action[2]) 
         self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
-            4.5 - math.fabs(self.vel_error))
+            4.5 - math.fabs(self.vel_error)) + action_penalty
         self.omega_reward = -2 * math.fabs(self.action[1])
         self.vel_reward = -math.fabs(self.action[0] - self.prev_action[0])
         #self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
@@ -379,7 +395,7 @@ class RangerEnv(gym.Env):
         self.text = self.ax.text(
             self.pose[0] + 1,
             self.pose[1] + 2,
-            f'vel_error={self.vel_error:.3f}\nclosest_idx={self.closest_idx}\ncrosstrack_error={self.crosstrack_error:.3f}\nReward={self.reward:.4f}\nwarthog_vel={self.twist[0]:.3f}\nphi_error={self.phi_error*180/math.pi:.4f}\nsim step={time.time() - self.tprev:.4f}\nep_reward={self.total_ep_reward:.4f}\nmax_vel={self.max_vel:.4f}\nomega_reward={self.omega_reward:.4f}\nvel_reward={self.vel_error:.4f}',
+            f'vel_error={self.vel_error:.3f}\nclosest_idx={self.closest_idx}\ncrosstrack_error={self.crosstrack_error:.3f}\nReward={self.reward:.4f}\nwarthog_vel={self.twist[0]:.3f}\nphi_error={self.phi_error*180/math.pi:.4f}\nsim step={time.time() - self.tprev:.4f}\nep_reward={self.total_ep_reward:.4f}\nmax_vel={self.max_vel:.4f}\nomega_reward={self.omega_reward:.4f}\nvel_reward={self.vel_error:.4f}\nbrake={self.action[1]}\nsteering={self.action[2]}',
             style='italic',
             bbox={
                 'facecolor': 'red',
@@ -394,6 +410,15 @@ class RangerEnv(gym.Env):
         self.ax.add_artist(self.arrow)
         self.xpose.append(self.pose[0])
         self.ypose.append(self.pose[1])
+        self.ax_brake.clear()
+        self.ax_steer.clear()
+        self.ax_accel.clear()
+        self.ax_brake.plot(self.brake_cmd)
+        self.ax_brake.set_title("Brake command with time")
+        self.ax_steer.plot(self.steer_cmd)
+        self.ax_steer.set_title("Steer command with time")
+        self.ax_accel.plot(self.accel_cmd)
+        self.ax_accel.set_title("Accel command with time")
         del self.xpose[0]
         del self.ypose[0]
         self.cur_pos.set_xdata(self.xpose)

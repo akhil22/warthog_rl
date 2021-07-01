@@ -26,7 +26,7 @@ def main():
     model1 = PPO2('MlpPolicy', env, verbose=1)
     #model = PPO2('MlpPolicy', env, verbose=1)
     #model.save('./policy/zero_train')
-    model = PPO2.load('./policy/ranger_weight1_stable4')
+    model = PPO2.load('./policy/ranger_weight2_stable0')
     #model = PPO2.load('./policy/after_train_const')
     #model = PPO2.load('./policy/after_train_const_delay')
     #model = PPO2.load('./policy/combine_trained')
