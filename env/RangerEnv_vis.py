@@ -288,9 +288,10 @@ class RangerEnv(gym.Env):
         #self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
         #    4.5 - math.fabs(self.vel_error)) * (
         #        math.pi / 3. - math.fabs(self.phi_error))
-        action_penalty = - 2*math.fabs(action[0] - self.prev_action[0]) - 2*math.fabs(action[1] - self.prev_action[1]) - math.fabs(action[2] - self.prev_action[2]) 
+        action_continuity_penalty = - 1*math.fabs(action[0] - self.prev_action[0]) - 1*math.fabs(action[1] - self.prev_action[1]) - math.fabs(action[2] - self.prev_action[2]) 
+        action_magnitude_penalty = math.fabs(action[0]) + math.fabs(action[1]) + math.fabs(action[2])
         self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
-            4.5 - math.fabs(self.vel_error)) + action_penalty
+            4.5 - math.fabs(self.vel_error)) + action_continuity_penalty - action_magnitude_penalty
         self.omega_reward = -2 * math.fabs(self.action[1])
         self.vel_reward = -math.fabs(self.action[0] - self.prev_action[0])
         #self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
