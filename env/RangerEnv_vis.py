@@ -37,7 +37,7 @@ class RangerEnv(gym.Env):
         self.closest_dist = math.inf
         self.num_waypoints = 0
         self.horizon = 10
-        self.dt = 0.01
+        self.dt = 0.03
         self.ref_vel = []
         self.brake_cmd =[0]*30
         self.steer_cmd =[0]*30

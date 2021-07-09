@@ -29,7 +29,7 @@ class DataCollector:
         self.env = RangerEnv(None)
         self.cmd_vel_topic = rospy.get_param('~cmd_vel_topic', 'warthog_velocity_controller/cmd_vel')
         self.joy_topic = rospy.get_param('~joy_topic', 'joy_orig')
-        self.out_file = rospy.get_param('~out_file_name', 'ranger_remote_sim_poses.csv')
+        self.out_file = rospy.get_param('~out_file_name', 'ranger_remote_sim_poses2.csv')
         self.file_h = open(self.out_file, 'w')
         self.file_h.writelines(f"x,y,th,vel,w,v_cmd,w_cmd\n")
         rospy.Subscriber(self.cmd_vel_topic, Twist, self.cmd_vel_cb)
@@ -87,7 +87,7 @@ def main():
         mutex.release()
         time2 = time.time()
         data_collector.env.render()
-        delt = 0.01 - (time2 - time1)
+        delt = 0.03 - (time2 - time1)
         print("delt: ", delt)
         if delt >=0:
             time.sleep(delt)
