@@ -20,13 +20,14 @@ import sys
 
 def main():
     #env = WarthogEnv('unity_remote.txt')
-    env = RangerEnv('sim_remote_waypoint.txt')
+    #env = RangerEnv('sim_remote_waypoint.txt')
+    env = RangerEnv('ranger_waypoints.csv')
     #env = WarthogEnv('real_remote_waypoints.txt')
     plt.pause(2)
     model1 = PPO2('MlpPolicy', env, verbose=1)
     #model = PPO2('MlpPolicy', env, verbose=1)
     #model.save('./policy/zero_train')
-    model = PPO2.load('./policy/ranger_weight2_stable9')
+    model = PPO2.load('./policy/ranger_weight1_stable0')
     #model = PPO2.load('./policy/after_train_const')
     #model = PPO2.load('./policy/after_train_const_delay')
     #model = PPO2.load('./policy/combine_trained')

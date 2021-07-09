@@ -37,7 +37,7 @@ class RangerEnv(gym.Env):
         self.closest_dist = math.inf
         self.num_waypoints = 0
         self.horizon = 10
-        self.dt = 0.06
+        self.dt = 0.01
         self.ref_vel = []
         self.brake_cmd =[0]*30
         self.steer_cmd =[0]*30
@@ -53,17 +53,18 @@ class RangerEnv(gym.Env):
         self.front_cam = mavs.MavsCamera()
         self._mav_scene_init()
         self.max_vel = 1
-        self.fig = plt.figure(dpi=100, figsize=(30, 30))
-        self.ax = self.fig.add_subplot(221)
-        self.ax_brake = self.fig.add_subplot(222)
-        self.ax_steer= self.fig.add_subplot(223)
-        self.ax_accel= self.fig.add_subplot(224)
+        self.fig = plt.figure(dpi=100, figsize=(10,10))
+        #self.ax = self.fig.add_subplot(221)
+        self.ax = self.fig.add_subplot(111)
+        #self.ax_brake = self.fig.add_subplot(222)
+        #self.ax_steer= self.fig.add_subplot(223)
+        #self.ax_accel= self.fig.add_subplot(224)
         #self.ax.set_box_aspect(1)
         self.ax.set_xlim([-4, 4])
         self.ax.set_ylim([-4, 4])
-        self.ax_accel.set_ylim([0, 1])
-        self.ax_brake.set_ylim([0, 1])
-        self.ax_steer.set_ylim([-1, 1])
+        #self.ax_accel.set_ylim([0, 1])
+        #self.ax_brake.set_ylim([0, 1])
+        #self.ax_steer.set_ylim([-1, 1])
         self.warthog_length = 0.5 / 2.0
         self.warthog_width = 1.0 / 2.0
         self.warthog_diag = math.sqrt(self.warthog_width**2 +
@@ -411,15 +412,15 @@ class RangerEnv(gym.Env):
         self.ax.add_artist(self.arrow)
         self.xpose.append(self.pose[0])
         self.ypose.append(self.pose[1])
-        self.ax_brake.clear()
-        self.ax_steer.clear()
-        self.ax_accel.clear()
-        self.ax_brake.plot(self.brake_cmd)
-        self.ax_brake.set_title("Brake command with time")
-        self.ax_steer.plot(self.steer_cmd)
-        self.ax_steer.set_title("Steer command with time")
-        self.ax_accel.plot(self.accel_cmd)
-        self.ax_accel.set_title("Accel command with time")
+        #self.ax_brake.clear()
+        #self.ax_steer.clear()
+        #self.ax_accel.clear()
+        #self.ax_brake.plot(self.brake_cmd)
+        #self.ax_brake.set_title("Brake command with time")
+        #self.ax_steer.plot(self.steer_cmd)
+        #self.ax_steer.set_title("Steer command with time")
+        #self.ax_accel.plot(self.accel_cmd)
+        #self.ax_accel.set_title("Accel command with time")
         del self.xpose[0]
         del self.ypose[0]
         self.cur_pos.set_xdata(self.xpose)
