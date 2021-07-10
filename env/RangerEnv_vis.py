@@ -43,6 +43,7 @@ class RangerEnv(gym.Env):
         self.steer_cmd =[0]*30
         self.accel_cmd =[0]*30
         self.axis_size = 20
+        self.use_orig_th = True
         if self.filename is not None:
             self._read_waypoint_file(self.filename)
         self.random_scene = mavs.MavsRandomScene()
@@ -286,13 +287,13 @@ class RangerEnv(gym.Env):
         #        math.pi / 3. - math.fabs(self.phi_error)) - math.fabs(
         #            self.action[0] -
         #            self.prev_action[0]) - 2 * math.fabs(self.action[1])
-        #self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
-        #    4.5 - math.fabs(self.vel_error)) * (
-        #        math.pi / 3. - math.fabs(self.phi_error))
+        self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
+            4.5 - math.fabs(self.vel_error)) * (
+                math.pi / 3. - math.fabs(self.phi_error))
         action_continuity_penalty = - 1*math.fabs(action[0] - self.prev_action[0]) - 1*math.fabs(action[1] - self.prev_action[1]) - math.fabs(action[2] - self.prev_action[2]) 
         action_magnitude_penalty = math.fabs(action[0]) + math.fabs(action[1]) + math.fabs(action[2])
-        self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
-            4.5 - math.fabs(self.vel_error)) + action_continuity_penalty - action_magnitude_penalty
+        #self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
+            #4.5 - math.fabs(self.vel_error)) + action_continuity_penalty - action_magnitude_penalty
         self.omega_reward = -2 * math.fabs(self.action[1])
         self.vel_reward = -math.fabs(self.action[0] - self.prev_action[0])
         #self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
@@ -314,8 +315,8 @@ class RangerEnv(gym.Env):
     def reset(self):
         
         self.total_ep_reward = 0
-        if (self.max_vel >= 5):
-            self.max_vel = 1
+        if (self.max_vel >= 15):
+            self.max_vel = 2
         idx = np.random.randint(self.num_waypoints, size=1)
         #idx = [0]
         idx = idx[0]
@@ -351,7 +352,7 @@ class RangerEnv(gym.Env):
             else:
                 self.waypoints_list[i][3] = self.ref_vel[i]
         #self.max_vel = 2
-        self.max_vel = self.max_vel + 1
+        self.max_vel = self.max_vel + 2
         obs = self.get_observation()
         self.curr_step = 0
         position = self.veh.GetPosition()
@@ -455,8 +456,8 @@ class RangerEnv(gym.Env):
                                             1][0] - self.waypoints_list[i][0]
                 ydiff = self.waypoints_list[i +
                                             1][1] - self.waypoints_list[i][1]
-                self.waypoints_list[i][2] = self.zero_to_2pi(
-                    self.get_theta(xdiff, ydiff))
+                if not self.use_orig_th:
+                    self.waypoints_list[i][2] = self.zero_to_2pi(self.get_theta(xdiff, ydiff))
             self.waypoints_list[i + 1][2] = self.waypoints_list[i][2]
             self.num_waypoints = i + 2
         pass

@@ -19,7 +19,7 @@ def make_env(env_id, rank, seed=0):
     :param rank: (int) index of the subprocess
     """
     def _init():
-        env = RangerEnv('unity_remote.txt')
+        env = RangerEnv('ranger_waypoints2.csv')
         env.seed(seed + rank)
         return env
 
@@ -33,8 +33,8 @@ if __name__ == '__main__':
     # Create the vectorized environment
     env = SubprocVecEnv([make_env(env_id, i) for i in range(num_cpu)])
     #env = RangerEnv('unity_remote.txt')
-    #plt.pause(2)
-    fname = './policy/ranger_weight2_stable'
+    plt.pause(2)
+    fname = './policy/ranger_weight4_stable'
 
     # Stable Baselines provides you with make_vec_env() helper
     # which does exactly the previous steps for you:
