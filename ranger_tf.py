@@ -39,7 +39,7 @@ if __name__ == '__main__':
     # Stable Baselines provides you with make_vec_env() helper
     # which does exactly the previous steps for you:
     # env = make_vec_env(env_id, n_envs=num_cpu, seed=0)
-    for i in range(0, 10):
+    for i in range(7, 10):
         if i == 0:
             model = PPO2('MlpPolicy', env, verbose=1)
             model.learn(total_timesteps=500000)
