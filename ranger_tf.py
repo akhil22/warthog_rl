@@ -34,12 +34,12 @@ if __name__ == '__main__':
     env = SubprocVecEnv([make_env(env_id, i) for i in range(num_cpu)])
     #env = RangerEnv('unity_remote.txt')
     plt.pause(2)
-    fname = './policy/ranger_weight4_stable'
+    fname = './policy/ranger_weight_stable_ang_correct'
 
     # Stable Baselines provides you with make_vec_env() helper
     # which does exactly the previous steps for you:
     # env = make_vec_env(env_id, n_envs=num_cpu, seed=0)
-    for i in range(10, 20):
+    for i in range(0, 10):
         if i == 0:
             model = PPO2('MlpPolicy', env, verbose=1)
             model.learn(total_timesteps=500000)
@@ -53,3 +53,4 @@ if __name__ == '__main__':
             model.env = model1.env
             model.learn(total_timesteps=500000)
             model.save(f'{fname}{i}')
+    print("done training")
