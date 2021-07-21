@@ -26,7 +26,7 @@ def main():
     model1 = PPO2('MlpPolicy', env, verbose=1)
     #model = PPO2('MlpPolicy', env, verbose=1)
     #model.save('./policy/zero_train')
-    model = PPO2.load('./policy/ranger_weight4_stable29')
+    model = PPO2.load('./policy/ranger2_weight_action_penalty13')
     #model = PPO2.load('./policy/after_train_const')
     #model = PPO2.load('./policy/after_train_const_delay')
     #model = PPO2.load('./policy/combine_trained')
@@ -37,12 +37,12 @@ def main():
     #model.env = model1.env
     act1 = []
     act2 = []
-    action = [0., 0., 0.]
+    #action = [0., 0., 0.]
     reward = 0
     #envg = model.get_env()
-    action[0] = 0.1
-    action[1] = 0.0
-    action[2] = 0.0
+    #action[0] = 0.1
+    #action[1] = 0.0
+    #action[2] = 0.0
     #obs = env.reset()
     #env.veh.SetInitialPosition(100,100,0)
     #env.veh.SetInitialHeading(0)

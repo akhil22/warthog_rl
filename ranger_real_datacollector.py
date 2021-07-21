@@ -6,6 +6,8 @@ from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from matplotlib import pyplot as plt
 from pyquaternion import Quaternion as qut
+from vn300.msg import ins
+from pacmod_msgs.msg import SystemRptFloat
 import message_filters
 import numpy as np
 
@@ -26,21 +28,23 @@ class DataCollector:
         command velocity topic and output file name
         """
         #self.env = WarthogEnv(None)
-        self.cmd_vel_topic = rospy.get_param('~cmd_vel_topic', 'warthog_velocity_controller/cmd_vel')
+        self.steer_topic = rospy.get_param('~steer_topic', 'parsed_tx/steer_rpt')
         #self.odom_topic = rospy.get_param('~odom_topic', 'odometry/filtered_map')
-        self.odom_topic = rospy.get_param('~odom_topic', 'odometry/filtered')
-        self.gps_odom_topic = rospy.get_param('~map_odom_topic', 'odometry/filtered2')
+        self.brake_topic = rospy.get_param('~brake_topic', 'parsed_tx/brake_rpt')
+        self.accel_topic = rospy.get_param('~accel_topic', 'parsed_tx/accel_rpt')
+        self.gps_topic = rospy.get_param('~gps_topic', 'vectornav/ins')
         #self.odom_topic = rospy.get_param('~odom_topic', 'warthog_velocity_controller/odom')
         # self.out_file = rospy.get_param('~out_file_name', 'real_remote_poses_ext_war_gps2.csv')
-        self.out_file = rospy.get_param('~out_file_name', 'rellis_mud1.csv')
+        self.out_file = rospy.get_param('~out_file_name', 'ranger_trajectory.csv')
         self.file_h = open(self.out_file, 'w')
         self.file_h.writelines("x,y,th,vel,w,v_cmd,w_cmd\n")
-        self.cmd_vel_sub = message_filters.Subscriber(self.cmd_vel_topic, Twist)
-        self.odom_sub = message_filters.Subscriber(self.odom_topic, Odometry)
-        self.gps_odom_sub = message_filters.Subscriber(self.gps_odom_topic, Odometry)
+        self.steer_sub = message_filters.Subscriber(self.steer_topic, SystemRptFloat)
+        self.brake_sub = message_filters.Subscriber(self.brake_topic, SystemRptFloat)
+        self.accel_sub = message_filters.Subscriber(self.accel_topic, SystemRptFloat)
+        self.gps_sub = message_filters.Subscriber(self.gps_topic, ins)
         #self.ts = message_filters.ApproximateTimeSynchronizer([self.cmd_vel_sub, self.odom_sub],10, 1, allow_headerless=True)
         #self.ts = message_filters.ApproximateTimeSynchronizer([self.cmd_vel_sub, self.odom_sub, self.gps_odom_sub],10, 1, allow_headerless=True)
-        self.ts = message_filters.ApproximateTimeSynchronizer([self.cmd_vel_sub, self.odom_sub, self.gps_odom_sub],10, 1, allow_headerless=True)
+        self.ts = message_filters.ApproximateTimeSynchronizer([self.steer_sub, self.brake_sub, self.accel_sub, self.gps_sub],10, 1, allow_headerless=True)
         #self.cmd_odom_cb= None 
         #self.ts.registerCallback(self.cmd_odom_cb)
 
@@ -103,13 +107,15 @@ class DataCollector:
         # w_cmd = msg.angular.z
         # #self.file_h.writelines(f"{x}, {y}, {th}, {v}, {w}, {v_cmd}, {w_cmd}\n")
         # self.env.sim_warthog(msg.linear.x, msg.angular.z)
+    def ranger_cmd_cb(self, steer_msg, brake_msg, accel_msg, gps_msg):
+        print(steer_msg, brake_msg, accel_msg, gps_msg)
 
 def main():
     """Ros node to start warthog simulation and collect data"""
-    rospy.init_node("sim_remote_data_collector")
+    rospy.init_node("ranger_real_data_collector")
     data_collector = DataCollector()
     #data_collector.ts.registerCallback(data_collector.cmd_odom_cb)
-    data_collector.ts.registerCallback(data_collector.gps_cmd_odom_cb)
+    data_collector.ts.registerCallback(data_collector.ranger_cmd_cb)
     plt.pause(3)
     r = rospy.Rate(10)
     while(not rospy.is_shutdown()):
