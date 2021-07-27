@@ -25,15 +25,16 @@ def make_env(env_id, rank, seed=0):
 
 if __name__ == '__main__':
     env_id = "CartPole-v1"
-    num_cpu = 20  # Number of processes to use
+    #num_cpu = 20  # Number of processes to use
+    num_cpu = 20
     # Create the vectorized environment
     env = SubprocVecEnv([make_env(env_id, i) for i in range(num_cpu)])
-    fname = './policy/vel_weight9_stable'
+    fname = './policy/vel2_new_weight9_stable'
 
     # Stable Baselines provides you with make_vec_env() helper
     # which does exactly the previous steps for you:
     # env = make_vec_env(env_id, n_envs=num_cpu, seed=0)
-    for i in range(5,10):
+    for i in range(0,10):
         if i == 0:
             model = PPO2('MlpPolicy', env, verbose=1)
             model.learn(total_timesteps=1000000)

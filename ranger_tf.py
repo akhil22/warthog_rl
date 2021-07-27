@@ -5,7 +5,7 @@ from stable_baselines.common.policies import MlpPolicy
 from stable_baselines.common.vec_env import SubprocVecEnv
 from stable_baselines.common import set_global_seeds, make_vec_env
 from stable_baselines import PPO2
-from env.RangerEnv_vis import RangerEnv
+from env.RangerEnv_simp import RangerEnv
 from matplotlib import pyplot as plt
 
 
@@ -34,15 +34,16 @@ if __name__ == '__main__':
     env = SubprocVecEnv([make_env(env_id, i) for i in range(num_cpu)])
     #env = RangerEnv('unity_remote.txt')
     plt.pause(2)
-    fname = './policy/ranger3_weight_action_penalty'
+    #fname = './policy/ranger_warthog2_weight_action_penalty'
+    fname = './policy/ranger_simp'
 
     # Stable Baselines provides you with make_vec_env() helper
     # which does exactly the previous steps for you:
     # env = make_vec_env(env_id, n_envs=num_cpu, seed=0)
-    for i in range(0, 30):
+    for i in range(6, 30):
         if i == 0:
             model = PPO2('MlpPolicy', env, verbose=1)
-            model.learn(total_timesteps=1000000)
+            model.learn(total_timesteps=500000)
             model.save(f'{fname}0')
         else:
             model1 = PPO2('MlpPolicy', env, verbose=1)
@@ -51,6 +52,6 @@ if __name__ == '__main__':
             # model.load('./first_pytorch_multiplication_reward.zip')
             model = PPO2.load(f'{fname}{i-1}')
             model.env = model1.env
-            model.learn(total_timesteps=1000000)
+            model.learn(total_timesteps=500000)
             model.save(f'{fname}{i}')
     print("done training")

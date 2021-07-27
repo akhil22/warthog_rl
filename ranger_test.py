@@ -9,7 +9,7 @@ from stable_baselines.common.policies import MlpPolicy
 #from stable_baselines.common import make_vec_env
 from stable_baselines import PPO2
 from matplotlib import pyplot as plt
-from env.RangerEnv_vis import RangerEnv
+from env.RangerEnv_simp import RangerEnv
 import time
 import numpy as np
 import sys
@@ -26,7 +26,7 @@ def main():
     model1 = PPO2('MlpPolicy', env, verbose=1)
     #model = PPO2('MlpPolicy', env, verbose=1)
     #model.save('./policy/zero_train')
-    model = PPO2.load('./policy/ranger2_weight_action_penalty13')
+    model = PPO2.load('./policy/vel1_new_weight9_stable9')
     #model = PPO2.load('./policy/after_train_const')
     #model = PPO2.load('./policy/after_train_const_delay')
     #model = PPO2.load('./policy/combine_trained')
@@ -75,7 +75,7 @@ def main():
     obs = env.reset()
     for i in range(30000):
         #  t2 = time.time()
-        action, _states = model.predict(obs, deterministic=False)
+        action, _states = model.predict(obs, deterministic=True)
         #action, _states = model.predict(obs, deterministic = True)
         # print(action)
         #act1.append(np.clip(action[0], 0 ,1)*4)
@@ -86,6 +86,8 @@ def main():
         #action[0] = 0.1
         #action[1] = 0.0
         #kkkkkkkkkkaction[2] = 0.3
+        #action[0] = 0.5
+        #action[1] = 0.6
         obs, reward, done, info = env.step(action)
         #print(t2-t1)
         #if t2 -t1 < 0.3:
