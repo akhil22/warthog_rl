@@ -9,7 +9,7 @@ from stable_baselines.common.policies import MlpPolicy
 #from stable_baselines.common import make_vec_env
 from stable_baselines import PPO2
 from matplotlib import pyplot as plt
-from env.RangerEnv_simp import RangerEnv
+from env.RangerEnv_vis import RangerEnv
 import time
 import numpy as np
 import sys
@@ -26,7 +26,7 @@ def main():
     model1 = PPO2('MlpPolicy', env, verbose=1)
     #model = PPO2('MlpPolicy', env, verbose=1)
     #model.save('./policy/zero_train')
-    model = PPO2.load('./policy/vel1_new_weight9_stable9')
+    model = PPO2.load('./policy/ranger_mavs_command_appended_less_vel9')
     #model = PPO2.load('./policy/after_train_const')
     #model = PPO2.load('./policy/after_train_const_delay')
     #model = PPO2.load('./policy/combine_trained')

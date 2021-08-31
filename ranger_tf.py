@@ -5,7 +5,7 @@ from stable_baselines.common.policies import MlpPolicy
 from stable_baselines.common.vec_env import SubprocVecEnv
 from stable_baselines.common import set_global_seeds, make_vec_env
 from stable_baselines import PPO2
-from env.RangerEnv_simp import RangerEnv
+from env.RangerEnv_vis import RangerEnv
 from matplotlib import pyplot as plt
 
 
@@ -35,14 +35,15 @@ if __name__ == '__main__':
     #env = RangerEnv('unity_remote.txt')
     plt.pause(2)
     #fname = './policy/ranger_warthog2_weight_action_penalty'
-    fname = './policy/ranger_simp'
+    fname = './policy/ranger_mavs_command_appended_less_vel'
+    policy_kwargs = dict(net_arch=[64, 64])
 
     # Stable Baselines provides you with make_vec_env() helper
     # which does exactly the previous steps for you:
     # env = make_vec_env(env_id, n_envs=num_cpu, seed=0)
-    for i in range(6, 30):
+    for i in range(0, 10):
         if i == 0:
-            model = PPO2('MlpPolicy', env, verbose=1)
+            model = PPO2('MlpPolicy', env, policy_kwargs = policy_kwargs, verbose=1)
             model.learn(total_timesteps=500000)
             model.save(f'{fname}0')
         else:

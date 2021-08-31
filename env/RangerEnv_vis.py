@@ -25,7 +25,7 @@ class RangerEnv(gym.Env):
                                        shape=(2, ))
         self.observation_space = spaces.Box(low=-100,
                                             high=1000,
-                                            shape=(42, ),
+                                            shape=(45, ),
                                             dtype=np.float)
         self.filename = waypoint_file
         plt.ion
@@ -232,7 +232,7 @@ class RangerEnv(gym.Env):
         return self.zero_to_2pi(theta)
 
     def get_observation(self):
-        obs = [0] * (self.horizon * 4 + 2)
+        obs = [0] * (self.horizon * 4 + 5)
         pose = self.pose
         twist = self.twist
         self.update_closest_idx(pose)
@@ -262,6 +262,9 @@ class RangerEnv(gym.Env):
             j = j + 4
         obs[j] = twist[0]
         obs[j + 1] = twist[1]
+        obs[j + 2] = self.accel_cmd[-2]
+        obs[j + 3] = self.steer_cmd[-2]
+        obs[j + 4] = self.brake_cmd[-2]
         return obs
 
     def step(self, action):
@@ -328,7 +331,7 @@ class RangerEnv(gym.Env):
                     action[2] - self.prev_action[2])'''
         self.reward = 2 * (2.0 - math.fabs(self.crosstrack_error)) * (
             4.5 - math.fabs(self.vel_error)) * (
-                math.pi / 3. - math.fabs(self.phi_error)) - 2 * math.fabs(
+                math.pi / 3. - math.fabs(self.phi_error)) - math.fabs(
                     action[1]) - math.fabs(action[0] - self.prev_action[0])
         #self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
         #4.5 - math.fabs(self.vel_error)) + action_continuity_penalty - action_magnitude_penalty
@@ -353,10 +356,11 @@ class RangerEnv(gym.Env):
     def reset(self):
 
         self.total_ep_reward = 0
-        if (self.max_vel >= 15):
+        if (self.max_vel >= 10):
             self.max_vel = 2
+        #self.max_vel = 10000
         idx = np.random.randint(self.num_waypoints, size=1)
-        #idx = [0]
+        #idx = [4]
         idx = idx[0]
         #idx = 880
         self.closest_idx = idx
