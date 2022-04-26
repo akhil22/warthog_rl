@@ -1,4 +1,5 @@
 def Settings(**kwargs):
-    return {'interpreter_path': '/home/sai/.conda/envs/stbaselines1/bin/python',
-    'sys_path': ['/home/sai/Downloads/warthog_rl']
+    return {
+        'interpreter_path': '/usr/bin/python3',
+        'sys_path': ['/home/akhil/warthog_rl']
     }

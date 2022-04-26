@@ -19,7 +19,8 @@ def make_env(env_id, rank, seed=0):
     :param rank: (int) index of the subprocess
     """
     def _init():
-        env = RangerEnv('ranger_waypoints2.csv')
+        #env = RangerEnv('ranger_waypoints2.csv')
+        env = RangerEnv('ranger_waypoints5.csv')
         env.seed(seed + rank)
         return env
 
@@ -34,12 +35,12 @@ if __name__ == '__main__':
     env = SubprocVecEnv([make_env(env_id, i) for i in range(num_cpu)])
     #env = RangerEnv('unity_remote.txt')
     plt.pause(2)
-    fname = './policy/ranger3_weight_action_penalty'
+    fname = './policy/ranger3_less_delay_huge_action_penalty'
 
     # Stable Baselines provides you with make_vec_env() helper
     # which does exactly the previous steps for you:
     # env = make_vec_env(env_id, n_envs=num_cpu, seed=0)
-    for i in range(0, 30):
+    for i in range(36, 46):
         if i == 0:
             model = PPO2('MlpPolicy', env, verbose=1)
             model.learn(total_timesteps=1000000)

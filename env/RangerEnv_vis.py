@@ -57,17 +57,17 @@ class RangerEnv(gym.Env):
         self._mav_scene_init()
         self.max_vel = 1
         self.fig = plt.figure(dpi=100, figsize=(10, 10))
-        self.ax = self.fig.add_subplot(121)
-        self.ax = self.fig.add_subplot(121)
+        #self.ax = self.fig.add_subplot(111)
+        self.ax = self.fig.add_subplot(111)
         #self.ax_brake = self.fig.add_subplot(222)
-        self.ax_steer = self.fig.add_subplot(122)
+        #self.ax_steer = self.fig.add_subplot(122)
         #self.ax_accel= self.fig.add_subplot(224)
         #self.ax.set_box_aspect(1)
         self.ax.set_xlim([-4, 4])
         self.ax.set_ylim([-4, 4])
         #self.ax_accel.set_ylim([0, 1])
         #self.ax_brake.set_ylim([0, 1])
-        self.ax_steer.set_ylim([-1, 1])
+        #self.ax_steer.set_ylim([-1, 1])
         self.warthog_length = 0.5 / 2.0
         self.warthog_width = 1.0 / 2.0
         self.warthog_diag = math.sqrt(self.warthog_width**2 +
@@ -311,17 +311,18 @@ class RangerEnv(gym.Env):
         #self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
         #  4.5 - math.fabs(self.vel_error)) * (math.pi / 3. -
         #                                      math.fabs(self.phi_error))
-        action_magnitude_penalty = math.fabs(self.accel_cmd[-1]) + math.fabs(
-            self.brake_cmd[-1]) + math.fabs(self.steer_cmd[-1])
+        #action_magnitude_penalty = math.fabs(self.accel_cmd[-1]) + math.fabs(
+        #    self.brake_cmd[-1]) + math.fabs(self.steer_cmd[-1])
+        action_magnitude_penalty = 3.0 * math.fabs(
+            action[0]) + 4.0 * math.fabs(action[1])
         action_cont_penalty = math.fabs(
             self.accel_cmd[-1] - self.accel_cmd[-2]) + math.fabs(
                 self.brake_cmd[-1] -
                 self.brake_cmd[-2]) - math.fabs(self.steer_cmd[-1] -
                                                 self.steer_cmd[-2])
         self.reward = 2 * (2.0 - math.fabs(self.crosstrack_error)) * (
-            4.5 - math.fabs(self.vel_error)) * (
-                math.pi / 3. - math.fabs(self.phi_error)
-            ) - action_magnitude_penalty - action_cont_penalty
+            4.5 - math.fabs(self.vel_error)) * (math.pi / 3. - math.fabs(
+                self.phi_error)) - action_magnitude_penalty
         '''action_continuity_penalty = -1 * math.fabs(
             action[0] - self.prev_action[0]) - 1 * math.fabs(
                 action[1] - self.prev_action[1]) - math.fabs(
@@ -352,7 +353,7 @@ class RangerEnv(gym.Env):
         if (self.max_vel >= 15):
             self.max_vel = 2
         idx = np.random.randint(self.num_waypoints, size=1)
-        #idx = [0]
+        idx = [3]
         idx = idx[0]
         #idx = 880
         self.closest_idx = idx
@@ -382,11 +383,13 @@ class RangerEnv(gym.Env):
         self.xpose = [self.pose[0]] * self.n_traj
         self.ypose = [self.pose[1]] * self.n_traj
         self.twist = [0., 0., 0.]
+        '''
         for i in range(0, self.num_waypoints):
             if (self.ref_vel[i] > self.max_vel):
                 self.waypoints_list[i][3] = self.max_vel
             else:
                 self.waypoints_list[i][3] = self.ref_vel[i]
+        '''
         #self.max_vel = 2
         self.max_vel = self.max_vel + 2
         obs = self.get_observation()
@@ -452,12 +455,12 @@ class RangerEnv(gym.Env):
         self.xpose.append(self.pose[0])
         self.ypose.append(self.pose[1])
         #self.ax_brake.clear()
-        self.ax_steer.clear()
+        #self.ax_steer.clear()
         #self.ax_accel.clear()
         #self.ax_brake.plot(self.brake_cmd)
         #self.ax_brake.set_title("Brake command with time")
-        self.ax_steer.plot(self.steer_cmd, '+r')
-        self.ax_steer.set_title("Steer command with time")
+        #self.ax_steer.plot(self.steer_cmd, '+r')
+        #self.ax_steer.set_title("Steer command with time")
         #self.ax_accel.plot(self.accel_cmd)
         #self.ax_accel.set_title("Accel command with time")
         del self.xpose[0]
