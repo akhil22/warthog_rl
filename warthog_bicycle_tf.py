@@ -5,7 +5,8 @@ from stable_baselines.common.policies import MlpPolicy
 from stable_baselines.common.vec_env import SubprocVecEnv
 from stable_baselines.common import set_global_seeds, make_vec_env
 from stable_baselines import PPO2
-from env.WarthogEnv import WarthogEnv
+from env.WarthogEnvAirSim import WarthogEnv
+from matplotlib import pyplot as plt
 
 def make_env(env_id, rank, seed=0):
     """
@@ -25,15 +26,16 @@ def make_env(env_id, rank, seed=0):
 
 if __name__ == '__main__':
     env_id = "CartPole-v1"
-    num_cpu = 20  # Number of processes to use
+    num_cpu = 1  # Number of processes to use
     # Create the vectorized environment
     env = SubprocVecEnv([make_env(env_id, i) for i in range(num_cpu)])
-    fname = './policy/vel_weight9_stable'
+    plt.pause(2)
+    fname = './policy/vel_airsim'
 
     # Stable Baselines provides you with make_vec_env() helper
     # which does exactly the previous steps for you:
     # env = make_vec_env(env_id, n_envs=num_cpu, seed=0)
-    for i in range(5,10):
+    for i in range(0,10):
         if i == 0:
             model = PPO2('MlpPolicy', env, verbose=1)
             model.learn(total_timesteps=1000000)
