@@ -78,14 +78,14 @@ class WarthogEnv(gym.Env):
         self.tprev = time.time()
         self.total_ep_reward = 0
         self.reward = 0
-        self.action = [0.,0.]
-        self.prev_action = [0.,0.]
+        self.action = [0., 0.]
+        self.prev_action = [0., 0.]
         self.omega_reward = 0
         self.vel_reward = 0
         self.is_delayed_dynamics = False
         self.delay_steps = 5
-        self.v_delay_data = [0.]*self.delay_steps
-        self.w_delay_data = [0.]*self.delay_steps
+        self.v_delay_data = [0.] * self.delay_steps
+        self.w_delay_data = [0.] * self.delay_steps
 
     def set_pose(self, x, y, th):
         self.pose = [x, y, th]
@@ -193,7 +193,7 @@ class WarthogEnv(gym.Env):
         return obs
 
     def step(self, action):
-        self.ep_steps = self.ep_steps+1
+        self.ep_steps = self.ep_steps + 1
         action[0] = np.clip(action[0], 0, 1) * 4.0
         action[1] = np.clip(action[1], -1, 1) * 2.5
         self.action = action
@@ -220,19 +220,23 @@ class WarthogEnv(gym.Env):
             done = True
             self.ep_steps = 0
         self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
-            4.5 - math.fabs(self.vel_error)) * (math.pi / 3. -
-                                                math.fabs(self.phi_error)) - math.fabs(self.action[0] - self.prev_action[0]) - 2*math.fabs(self.action[1])
-        self.omega_reward = -2*math.fabs(self.action[1])
+            4.5 - math.fabs(self.vel_error)) * (
+                math.pi / 3. - math.fabs(self.phi_error)) - math.fabs(
+                    self.action[0] -
+                    self.prev_action[0]) - 2 * math.fabs(self.action[1])
+        self.omega_reward = -2 * math.fabs(self.action[1])
         self.vel_reward = -math.fabs(self.action[0] - self.prev_action[0])
         #self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
         #    4.0 - math.fabs(self.vel_error)) * (math.pi / 3. -
-        #                                        math.fabs(self.phi_error)) - math.fabs(self.action[0] - self.prev_action[0]) - 1.3*math.fabs(self.action[1] - self.prev_action[1]) 
+        #                                        math.fabs(self.phi_error)) - math.fabs(self.action[0] - self.prev_action[0]) - 1.3*math.fabs(self.action[1] - self.prev_action[1])
         self.prev_action = self.action
         #if (self.prev_closest_idx == self.closest_idx
         #        or math.fabs(self.vel_error) > 1.5):
-        if self.waypoints_list[k][3] >= 2.5 and math.fabs(self.vel_error) > 1.5:
+        if self.waypoints_list[k][3] >= 2.5 and math.fabs(
+                self.vel_error) > 1.5:
             self.reward = 0
-        elif self.waypoints_list[k][3] < 2.5 and math.fabs(self.vel_error) >0.5:
+        elif self.waypoints_list[k][3] < 2.5 and math.fabs(
+                self.vel_error) > 0.5:
             self.reward = 0
         self.total_ep_reward = self.total_ep_reward + self.reward
         #self.render()
@@ -243,7 +247,7 @@ class WarthogEnv(gym.Env):
         if (self.max_vel >= 5):
             self.max_vel = 1
         idx = np.random.randint(self.num_waypoints, size=1)
-        #idx = [0]
+        idx = [0]
         idx = idx[0]
         #idx = 880
         self.closest_idx = idx
@@ -265,8 +269,14 @@ class WarthogEnv(gym.Env):
         return obs
 
     def render(self, mode='human'):
-        self.ax.set_xlim([self.pose[0] - self.axis_size/2.0, self.pose[0] + self.axis_size/2.0])
-        self.ax.set_ylim([self.pose[1] - self.axis_size/2.0, self.pose[1] + self.axis_size/2.0])
+        self.ax.set_xlim([
+            self.pose[0] - self.axis_size / 2.0,
+            self.pose[0] + self.axis_size / 2.0
+        ])
+        self.ax.set_ylim([
+            self.pose[1] - self.axis_size / 2.0,
+            self.pose[1] + self.axis_size / 2.0
+        ])
         total_diag_ang = self.diag_ang + self.pose[2]
         xl = self.pose[0] - self.warthog_diag * math.cos(total_diag_ang)
         yl = self.pose[1] - self.warthog_diag * math.sin(total_diag_ang)
@@ -282,9 +292,11 @@ class WarthogEnv(gym.Env):
         #self.rect.set_height(self.warthog_length * 2)
         #del self.rect
         self.rect.remove()
-        self.rect = Rectangle((xl, yl), self.warthog_width * 2,
+        self.rect = Rectangle((xl, yl),
+                              self.warthog_width * 2,
                               self.warthog_length * 2,
-                              180.0 * self.pose[2] / math.pi, facecolor='blue')
+                              180.0 * self.pose[2] / math.pi,
+                              facecolor='blue')
         self.text.remove()
         self.text = self.ax.text(
             self.pose[0] + 1,

@@ -23,6 +23,7 @@ class WarthogEnv(gym.Env):
                                             dtype=np.float)
         self.filename = waypoint_file
         plt.ion
+        self.prev_z_w = 0
         self.waypoints_list = []
         self.num_waypoints = 0
         self.pose = [0, 0, 0]
@@ -32,7 +33,7 @@ class WarthogEnv(gym.Env):
         self.closest_dist = math.inf
         self.num_waypoints = 0
         self.horizon = 10
-        self.dt = 0.06
+        self.dt = 0.0085
         self.ref_vel = []
         self.axis_size = 20
         if self.filename is not None:
@@ -111,7 +112,14 @@ class WarthogEnv(gym.Env):
     def sim_warthog(self, v, w):
         self.war_controls.linear_vel = v.item()
         self.war_controls.angular_vel = w.item()
+        self.client.simPause(False)
         self.client.setWarthogControls(self.war_controls)
+        #self.client.simContinueForTime(0.02)
+        #self.client.simContinueForFrames(4)
+        #time.sleep(self.dt)
+        time.sleep(0.02)
+        self.client.simPause(True)
+        #self.client.simContinueForTime(self.dt)
         self.war_state = self.client.getWarthogState()
         w = self.war_state.kinematics_estimated.orientation.w_val
         x = self.war_state.kinematics_estimated.orientation.x_val
@@ -128,8 +136,9 @@ class WarthogEnv(gym.Env):
         x_ = self.war_state.kinematics_estimated.linear_velocity.x_val
         y_ = self.war_state.kinematics_estimated.linear_velocity.y_val
         self.twist[0] = np.sqrt(x_ * x_ + y_ * y_)
-        self.twist[
-            1] = -1 * self.war_state.kinematics_estimated.angular_velocity.z_val
+
+        self.twist[1] = (yaw - self.prev_z_w) / self.dt
+        self.prev_z_w = yaw
         '''
         x = self.pose[0]
         y = self.pose[1]
@@ -272,7 +281,7 @@ class WarthogEnv(gym.Env):
         return obs, self.reward, done, {}
 
     def reset(self):
-        self.client.reset()
+        self.prev_z_w = 0
         self.total_ep_reward = 0
         if (self.max_vel >= 5):
             self.max_vel = 1
@@ -296,6 +305,7 @@ class WarthogEnv(gym.Env):
         #self.max_vel = 2
         self.max_vel = self.max_vel + 1
         obs = self.get_observation()
+        self.client.reset()
         return obs
 
     def render(self, mode='human'):
