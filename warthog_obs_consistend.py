@@ -47,7 +47,7 @@ def main():
 #    num_points = 10
     num_traj_point = 10
     num_traj_point = num_points
-    waypoint_dist = 0.5 
+    waypoint_dist = 0.5
     print(num_points)
     #for each point in the file get the observation for training
     for i in range(0, num_points-1):

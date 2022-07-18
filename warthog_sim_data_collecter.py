@@ -18,7 +18,7 @@ class DataCollector:
         file_h : output file handler
     """
     def __init__(self):
-        """Initialize Data collector with gyn environment
+        """Initialize Data collector with gym environment
         command velocity topic and output file name
         """
         self.env = WarthogEnv(None)

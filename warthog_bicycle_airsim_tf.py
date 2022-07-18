@@ -5,8 +5,8 @@ from stable_baselines.common.policies import MlpPolicy
 from stable_baselines.common.vec_env import SubprocVecEnv
 from stable_baselines.common import set_global_seeds, make_vec_env
 from stable_baselines import PPO2
+from env.WarthogEnvAirSim import WarthogEnv
 #from env.WarthogEnvAirSim import WarthogEnv
-from env.WarthogEnv import WarthogEnv
 from matplotlib import pyplot as plt
 
 

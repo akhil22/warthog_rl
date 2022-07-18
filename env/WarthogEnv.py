@@ -10,7 +10,7 @@ import time
 
 
 class WarthogEnv(gym.Env):
-    def __init__(self, waypoint_file):
+    def __init__(self, waypoint_file, file_name):
         super(WarthogEnv, self).__init__()
         self.action_space = spaces.Box(low=np.array([0.0, -1.5]),
                                        high=np.array([1.0, 1.5]),
@@ -86,6 +86,8 @@ class WarthogEnv(gym.Env):
         self.delay_steps = 5
         self.v_delay_data = [0.] * self.delay_steps
         self.w_delay_data = [0.] * self.delay_steps
+        self.save_data = False
+        self.traj_file = open(file_name, 'w')
 
     def set_pose(self, x, y, th):
         self.pose = [x, y, th]
@@ -123,6 +125,10 @@ class WarthogEnv(gym.Env):
         self.pose[0] = x + v_ * math.cos(th) * dt
         self.pose[1] = y + v_ * math.sin(th) * dt
         self.pose[2] = th + w_ * dt
+        if(self.save_data):
+            self.traj_file.writelines(f"{x}, {y}, {th}, {v_}, {w_}, {v}, {w}\n")
+    def close_files(self):
+        self.traj_file.close()
 
     def zero_to_2pi(self, theta):
         if theta < 0:
@@ -247,7 +253,7 @@ class WarthogEnv(gym.Env):
         if (self.max_vel >= 5):
             self.max_vel = 1
         idx = np.random.randint(self.num_waypoints, size=1)
-        idx = [0]
+        #idx = [0]
         idx = idx[0]
         #idx = 880
         self.closest_idx = idx
