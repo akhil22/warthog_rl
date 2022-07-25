@@ -36,10 +36,10 @@ def main():
         sys.argv[3]: output policy file to save trained policy
      
     """
-    env = WarthogEnv('unity_remote.txt')
+    env = WarthogEnv('unity_remote.txt', None)
     obs = np.array(env.reset())
     model = PPO2('MlpPolicy', env, verbose=1)
-    model = PPO2.load('./policy/vel_weight8_stable9')
+    #model = PPO2.load('./policy/vel_weight8_stable9')
     model = PPO2.load(sys.argv[1])
     df = pd.read_csv(sys.argv[2], header=None)
     #print(df)
@@ -59,7 +59,7 @@ def main():
     print(len(train))
     print(num_data_points)
 
-    n_epoch = 400
+    n_epoch = 200
     graph = model.sess.graph
     with model.sess as sess:
         target_ph = tf.placeholder(dtype=tf.float32, shape=[None, 2])
@@ -131,7 +131,8 @@ def main():
         #model.save("./policy/after_train_const_zero")
         #model.save("./policy/real_train_const_zero")
         #model.save("./policy/after_train_const_delay")
-        model.save(f"./policy/combine_trained_may8_{n_epoch}")
+        #model.save(f"./policy/combine_trained_may8_{n_epoch}")
+        model.save(f"./policy/kinematic_sup0_after_corr_train_500k_1M{n_epoch}")
         #model.save(sys.argv[3])
 
     plt.grid()

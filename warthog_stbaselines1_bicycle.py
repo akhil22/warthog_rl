@@ -9,7 +9,8 @@ from stable_baselines.common.policies import MlpPolicy
 from stable_baselines.common import make_vec_env
 from stable_baselines import PPO2
 from matplotlib import pyplot as plt
-from env.WarthogEnvAirSim import WarthogEnv
+#from env.WarthogEnvAirSim import WarthogEnv
+from env.WarthogEnv import WarthogEnv
 import time
 import numpy as np
 import sys
@@ -19,14 +20,17 @@ import sys
 
 def main():
     #env = WarthogEnv('unity_remote.txt')
-    env = WarthogEnv('sim_remote_waypoint.txt')
+    env = WarthogEnv('sim_remote_waypoint.txt',None)
     #env = WarthogEnv('real_remote_waypoints.txt')
     plt.pause(2)
     model1 = PPO2('MlpPolicy', env, verbose=1)
     model = PPO2('MlpPolicy', env, verbose=1)
     #model.save('./policy/zero_train')
     #model = PPO2.load('./policy/vel_weight8_stable8')
-    model = PPO2.load('./policy/vel_airsim_test_final_6xfast3')
+    #model = PPO2.load('./policy/vel_airsim_test_final_6xfast3')
+    #model = PPO2.load('./policy/kinematic_sup0_after_corr_train_200')
+    #model = PPO2.load('./policy/kinematic_sup0_after_corr_train_500k_1M200')
+    model = PPO2.load('./policy/kinematic_sup0')
     #model = PPO2.load('./policy/after_train_const')
     #model = PPO2.load('./policy/after_train_const_delay')
     #model = PPO2.load('./policy/combine_trained')

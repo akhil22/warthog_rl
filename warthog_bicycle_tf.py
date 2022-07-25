@@ -20,7 +20,7 @@ def make_env(env_id, rank, seed=0):
     :param rank: (int) index of the subprocess
     """
     def _init():
-        env = WarthogEnv('unity_remote.txt', 'sup_pose.csv')
+        env = WarthogEnv('unity_remote.txt', 'sup_pose_ep_info.csv')
         env.save_data = True
         env.seed(seed + rank)
         return env
@@ -36,9 +36,9 @@ if __name__ == '__main__':
     env = SubprocVecEnv([make_env(env_id, i) for i in range(num_cpu)])
     plt.pause(2)
     #fname = './policy/vel_airsim_test_final_6xfast'
-    fname = './policy/kinematic_sup'
+    fname = './policy/kinematic_sup_ep_info'
     #logn = './log/airsim/'
-    logn = './log/kinematic_sup/'
+    logn = './log/kinematic_sup_ep_info/'
     tb = "run"
 
     # Stable Baselines provides you with make_vec_env() helper

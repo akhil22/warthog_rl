@@ -100,7 +100,7 @@ def main():
             for ob in obs:
                 out_file_h.writelines(f"{ob}, ")
             out_file_h.writelines(f"{command[0]}, {command[1]}\n")
-        break;
+        break
     out_file_h.close()
 
 

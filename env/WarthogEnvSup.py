@@ -39,6 +39,7 @@ class WarthogEnv(gym.Env):
         self.max_vel = 1
         self.fig = plt.figure(dpi=100, figsize=(10, 10))
         self.ax = self.fig.add_subplot(111)
+        self.waypoints_dist = 0.5
         #self.ax.set_box_aspect(1)
         self.ax.set_xlim([-4, 4])
         self.ax.set_ylim([-4, 4])
@@ -75,7 +76,7 @@ class WarthogEnv(gym.Env):
                                  fontsize=12)
         #self.ax.add_artist(self.text)
         self.ep_steps = 0
-        self.max_ep_steps = 700
+        self.max_ep_steps = 300
         self.tprev = time.time()
         self.total_ep_reward = 0
         self.reward = 0
@@ -92,6 +93,9 @@ class WarthogEnv(gym.Env):
         self.traj_file = None
         if(self.out_traj_file is not None):
             self.traj_file = open(file_name, 'w')
+        self.ep_dist = 0
+        self.ep_poses = []
+        self.sup_waypoint_list = []
 #    def __del__(self):
 #        self.fig.clear()
 
@@ -131,6 +135,7 @@ class WarthogEnv(gym.Env):
         self.pose[0] = x + v_ * math.cos(th) * dt
         self.pose[1] = y + v_ * math.sin(th) * dt
         self.pose[2] = th + w_ * dt
+        self.ep_poses.append(np.array([x, y, th, v_, w_, v, w]))
         if(self.save_data and self.traj_file is not None):
             self.traj_file.writelines(f"{x}, {y}, {th}, {v_}, {w_}, {v}, {w}, {self.ep_start}\n")
         self.ep_start = 0
@@ -167,6 +172,23 @@ class WarthogEnv(gym.Env):
             else:
                 break
         self.closest_idx = idx
+    
+    def get_closest_idx_for_sup(self):
+        idx = 0
+        closest_id_data = []
+        num_sup_waypoints = len(self.sup_waypoint_list)
+        for k in range(0, len(self.ep_poses)):
+            closest_dist = math.inf
+            pose = self.ep_poses[k][0:2]
+            for i in range(idx, num_sup_waypoints):
+                dist = self.get_dist(self.sup_waypoint_list[i][0:2], pose)
+                if (dist <= closest_dist):
+                    closest_dist = dist
+                    idx = i
+                else:
+                    break
+            closest_id_data.append(idx)
+        return closest_id_data
 
     def get_theta(self, xdiff, ydiff):
         theta = math.atan2(ydiff, xdiff)
@@ -254,9 +276,89 @@ class WarthogEnv(gym.Env):
         self.total_ep_reward = self.total_ep_reward + self.reward
         #self.render()
         return obs, self.reward, done, {}
-
+    def get_waypoints_for_sup_learning(self):
+        num_st = len(self.ep_poses) 
+        if num_st == 0:
+            return
+        k = 1
+        self.sup_waypoint_list = []
+        prev_waypoint = self.ep_poses[0]
+        self.sup_waypoint_list.append(prev_waypoint)
+        while k < num_st:
+            curr_waypoint = self.ep_poses[k]
+            dist_from_prev_wp = np.linalg.norm(curr_waypoint[0:2]- prev_waypoint[0:2])
+            if dist_from_prev_wp >= self.waypoints_dist:
+                self.sup_waypoint_list.append(curr_waypoint)
+                prev_waypoint = curr_waypoint
+            k = k+1
+    def save_obs_for_sup_learning(self):
+        if self.traj_file is None:
+            return
+        if len(self.sup_waypoint_list) < 25:
+            return
+        plot_obs = False
+        fig_t = None
+        if plot_obs:
+            fig_t = plt.figure()
+            plt.ion()
+        m = 0
+        closest_id_data = self.get_closest_idx_for_sup()
+        while m < len(self.ep_poses):
+            pose = self.ep_poses[m]
+            twist = [0,0]
+            twist[0] = self.ep_poses[m][3]
+            twist[1] = self.ep_poses[m][4]
+            j = 0
+            obs = [0] * (self.horizon * 4 + 2)
+            for i in range(0, self.horizon):
+                k = i + closest_id_data[m]
+                if k < len(self.sup_waypoint_list):
+                    r = self.get_dist(self.sup_waypoint_list[k], pose)
+                    xdiff = self.sup_waypoint_list[k][0] - pose[0]
+                    ydiff = self.sup_waypoint_list[k][1] - pose[1]
+                    th = self.get_theta(xdiff, ydiff)
+                    vehicle_th = self.zero_to_2pi(pose[2])
+                #vehicle_th = -vehicle_th
+                #vehicle_th = 2*math.pi - vehicle_th
+                    yaw_error = self.pi_to_pi(self.sup_waypoint_list[k][2] -
+                                          vehicle_th)
+                    vel = self.sup_waypoint_list[k][3]
+                    obs[j] = r
+                    obs[j + 1] = self.pi_to_pi(th - vehicle_th)
+                    obs[j + 2] = yaw_error
+                    obs[j + 3] = vel - twist[0]
+                else:
+                    obs[j] = 0.
+                    obs[j + 1] = 0.
+                    obs[j + 2] = 0.
+                    obs[j + 3] = 0.
+                j = j + 4
+                obs[j] = twist[0]
+            for ob in obs:
+                self.traj_file.writelines(f"{ob}, ")
+            self.traj_file.writelines(f"{pose[5]}, {pose[6]}\n")
+            if plot_obs:
+                self.plot_observation(pose, obs)
+            m = m+1
+        if plot_obs:
+            plt.close(fig_t)
+    def plot_observation(self, pose, obs):
+        ob_way = []
+        for j in range(0,10):
+            x_ob = pose[0] + obs[j*4]*np.cos(obs[j*4+1]+pose[2])
+            y_ob = pose[1] + obs[j*4]*np.sin(obs[j*4+1]+pose[2])
+            ob_way.append([x_ob, y_ob])
+        plt.plot([x[0] for x in self.sup_waypoint_list], [x[1] for x in self.sup_waypoint_list])
+        plt.plot([x[0] for x in ob_way], [x[1] for x in ob_way], '+r') 
+        plt.plot(pose[0], pose[1], '*g')
+        plt.draw()
+        plt.pause(0.001)
+        plt.clf()
     def reset(self):
+        self.get_waypoints_for_sup_learning()
+        self.save_obs_for_sup_learning()
         self.ep_start = 1
+        self.ep_poses = []
         self.total_ep_reward = 0
         if (self.max_vel >= 5):
             self.max_vel = 1
