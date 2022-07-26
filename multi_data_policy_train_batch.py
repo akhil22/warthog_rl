@@ -140,7 +140,8 @@ def main():
         #model.save("./policy/after_train_const_delay")
         #model.save(f"./policy/combine_trained_may8_{n_epoch}")
         #model.save(f"./policy/kinematic_sup0_after_corr_train_0_1M_online{n_epoch}")
-        model.save(f"./policy/temp_ablation_sup_batch_{batch_size}_online_train{n_epoch}")
+        #model.save(f"./policy/kinematic5_batch_{batch_size}_online_train{n_epoch}")
+        model.save(f"./policy/kinematic5_manual_obs_{batch_size}_online_train{n_epoch}")
 
         #model.save(sys.argv[3])
 

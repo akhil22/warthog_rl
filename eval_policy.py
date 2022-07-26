@@ -21,7 +21,7 @@ from tqdm import tqdm
 
 def main():
     #env = WarthogEnv('unity_remote.txt')
-    num_runs = 1
+    num_runs = 10
     num_steps = 3000
     avg_rew = np.zeros([num_runs,num_steps])
     env = WarthogEnv('sim_remote_waypoint.txt', 'None')
@@ -31,7 +31,7 @@ def main():
     fig_file_ext = sys.argv[2]
     model = PPO2.load(f"./policy/{policy_file}")
     model.env = model1.env
-    plt.pause(2)
+#    plt.pause(2)
     for j in tqdm(range(0,num_runs)):
 #        print(j)
     #env = WarthogEnv('real_remote_waypoints.txt')
@@ -74,7 +74,7 @@ def main():
         # time.sleep(0.3 - (t2-t1))
         #t1 = t2
         #print(action)
-            env.render()
+#            env.render()
         #time.sleep(2)
             if done:
                 obs = env.reset()

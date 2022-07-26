@@ -57,9 +57,11 @@ def main():
     episode_traj = []
     episode_index_info = []
     waypoint_dist = 0.5
-    start = 500000;
+    #start = 500000;
+    start = 0;
     previ = start
-    total_st = 500000
+    #total_st = 500000
+    total_st = num_steps-1
     pbar = tqdm(total=total_st)
     i = start
     print("getting episodes")
@@ -98,8 +100,9 @@ def main():
     ax.set_aspect('equal', adjustable='box')
     warthog_env = WarthogEnv(None,None)
     print("getting observation")
-    plot_way_and_obs = False
-    #plt.ion()
+    #plot_way_and_obs = False
+    plot_way_and_obs = True
+    plt.ion()
     for j in tqdm(range(0,len(episode_traj))): 
         #print(episode_traj[j])
         #print(episode_index_info[j])

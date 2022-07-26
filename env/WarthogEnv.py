@@ -87,7 +87,7 @@ class WarthogEnv(gym.Env):
         self.delay_steps = 5
         self.v_delay_data = [0.] * self.delay_steps
         self.w_delay_data = [0.] * self.delay_steps
-        self.save_data = False
+        self.save_data = True
         self.ep_start = 1
         self.traj_file = None
         if(self.out_traj_file is not None):
