@@ -33,6 +33,7 @@ class WarthogEnv(gym.Env):
         self.horizon = 10
         self.dt = 0.06
         self.ref_vel = []
+        self.num_steps = 0
         self.axis_size = 20
         if self.filename is not None:
             self._read_waypoint_file(self.filename)
@@ -75,8 +76,9 @@ class WarthogEnv(gym.Env):
                                  },
                                  fontsize=12)
         #self.ax.add_artist(self.text)
+        self.start_step_for_sup_data = 500000
         self.ep_steps = 0
-        self.max_ep_steps = 300
+        self.max_ep_steps = 700
         self.tprev = time.time()
         self.total_ep_reward = 0
         self.reward = 0
@@ -136,8 +138,6 @@ class WarthogEnv(gym.Env):
         self.pose[1] = y + v_ * math.sin(th) * dt
         self.pose[2] = th + w_ * dt
         self.ep_poses.append(np.array([x, y, th, v_, w_, v, w]))
-        if(self.save_data and self.traj_file is not None):
-            self.traj_file.writelines(f"{x}, {y}, {th}, {v_}, {w_}, {v}, {w}, {self.ep_start}\n")
         self.ep_start = 0
     def close_files(self):
         self.traj_file.close()
@@ -229,6 +229,7 @@ class WarthogEnv(gym.Env):
 
     def step(self, action):
         self.ep_steps = self.ep_steps + 1
+        self.num_steps = self.num_steps+1
         action[0] = np.clip(action[0], 0, 1) * 4.0
         action[1] = np.clip(action[1], -1, 1) * 2.5
         self.action = action
@@ -278,7 +279,7 @@ class WarthogEnv(gym.Env):
         return obs, self.reward, done, {}
     def get_waypoints_for_sup_learning(self):
         num_st = len(self.ep_poses) 
-        if num_st == 0:
+        if num_st == 0 or self.num_steps < self.start_step_for_sup_data:
             return
         k = 1
         self.sup_waypoint_list = []
@@ -294,7 +295,7 @@ class WarthogEnv(gym.Env):
     def save_obs_for_sup_learning(self):
         if self.traj_file is None:
             return
-        if len(self.sup_waypoint_list) < 25:
+        if len(self.sup_waypoint_list) < 25 or self.num_steps < self.start_step_for_sup_data: 
             return
         plot_obs = False
         fig_t = None

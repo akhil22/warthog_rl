@@ -16,6 +16,7 @@ import numpy as np
 import pandas as pd
 from ast import literal_eval
 from matplotlib import pyplot as plt
+from tqdm import tqdm
 
 # In[4]:
 def get_obs_label(train):
@@ -40,7 +41,7 @@ def main():
     obs = np.array(env.reset())
     model = PPO2('MlpPolicy', env, verbose=1)
     #model = PPO2.load('./policy/vel_weight8_stable9')
-    #model = PPO2.load(sys.argv[1])
+    model = PPO2.load(sys.argv[1])
     df = pd.read_csv(sys.argv[2], header=None)
     #print(df)
     for i in range(0, len(sys.argv) - 3):
@@ -55,11 +56,14 @@ def main():
     train = df[msk]
     test = df[~msk]
     #print("after combining")
+    batch_size = 512 # best
+    #batch_size = 1024
+    num_batches = int(len(train)/batch_size)
     #print(df)
     print(len(train))
     print(num_data_points)
 
-    n_epoch = 200
+    n_epoch = 5
     graph = model.sess.graph
     with model.sess as sess:
         target_ph = tf.placeholder(dtype=tf.float32, shape=[None, 2])
@@ -82,14 +86,17 @@ def main():
         #_, loss1 = sess.run([train_op,loss], {target_ph: train_labels, model.act_model.obs_ph: train_obs})
        # print(loss1)
         for i in range(0,n_epoch):
-            _, loss2 = sess.run([train_op ,loss], {target_ph: train_labels, model.act_model.obs_ph: train_obs})
-            train_loss.append(loss2)
+            for j in tqdm(range(0, num_batches)):
+                start_id = j*batch_size
+                end_id = min(batch_size*(j+1), len(train))
+                _, loss2 = sess.run([train_op ,loss], {target_ph: train_labels[start_id:end_id], model.act_model.obs_ph: train_obs[start_id:end_id]})
+                train_loss.append(loss2)
+            
             loss3 = sess.run([loss], {target_ph: test_labels, model.act_model.obs_ph: test_obs})
             test_loss.append(loss3)
-            if i % 100 == 0:
-                print(f"Iteration: {i}, Traninig Loss: {loss2}")
-                print(f"Iteration: {i}, Test Loss: {loss3}")
-                print("----------------------------------------")
+            print(f"Iteration: {i}, Traninig Loss: {loss2}")
+            print(f"Iteration: {i}, Test Loss: {loss3}")
+            print("----------------------------------------")
             #print(loss2)
         action1 = model.sess.run(model.act_model.deterministic_action,{model.act_model.obs_ph: test_obs})
         writer = tf.summary.FileWriter('./graphs', sess.graph)
@@ -132,8 +139,9 @@ def main():
         #model.save("./policy/real_train_const_zero")
         #model.save("./policy/after_train_const_delay")
         #model.save(f"./policy/combine_trained_may8_{n_epoch}")
-        #model.save(f"./policy/kinematic_sup0_after_corr_train_0_1M_2_2_online{n_epoch}")
-        model.save(f"./policy/sup3_ablation_online_test_no_batch{n_epoch}")
+        #model.save(f"./policy/kinematic_sup0_after_corr_train_0_1M_online{n_epoch}")
+        model.save(f"./policy/temp_ablation_sup_batch_{batch_size}_online_train{n_epoch}")
+
         #model.save(sys.argv[3])
 
     plt.grid()

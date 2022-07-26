@@ -6,7 +6,7 @@ from stable_baselines.common.vec_env import SubprocVecEnv
 from stable_baselines.common import set_global_seeds, make_vec_env
 from stable_baselines import PPO2
 #from env.WarthogEnvAirSim import WarthogEnv
-from env.WarthogEnv import WarthogEnv
+from env.WarthogEnvSup import WarthogEnv
 from matplotlib import pyplot as plt
 
 
@@ -20,7 +20,7 @@ def make_env(env_id, rank, seed=0):
     :param rank: (int) index of the subprocess
     """
     def _init():
-        env = WarthogEnv('unity_remote.txt', 'sup_pose_ep_info.csv')
+        env = WarthogEnv('unity_remote.txt', 'sup4_pose_obs_500k_1M.csv')
         env.save_data = True
         env.seed(seed + rank)
         return env
@@ -36,9 +36,9 @@ if __name__ == '__main__':
     env = SubprocVecEnv([make_env(env_id, i) for i in range(num_cpu)])
     plt.pause(2)
     #fname = './policy/vel_airsim_test_final_6xfast'
-    fname = './policy/kinematic_sup_ep_info'
+    fname = './policy/kinematic4_sup_obs_info'
     #logn = './log/airsim/'
-    logn = './log/kinematic_sup_ep_info/'
+    logn = './log/kinematic_sup_obs_info/'
     tb = "run"
 
     # Stable Baselines provides you with make_vec_env() helper
