@@ -95,6 +95,11 @@ def main():
         episode_index_info.append(episode_index)
         pbar.update(i-previ)
         previ = i
+    save_way_points = True
+    if save_way_points:
+        way_file = open("temp_way.csv", 'w')
+        for way in episode_traj[0]:
+            way_file.writelines(f"{way[0]},{way[1]},{way[2]},{way[3]},{way[4]}\n")
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.set_aspect('equal', adjustable='box')
@@ -133,7 +138,7 @@ def main():
                 plt.plot([x[0] for x in ob_way], [x[1] for x in ob_way], '+r') 
                 plt.plot(war_pose[0], war_pose[1], '*g')
                 plt.draw()
-                plt.pause(0.05)
+                plt.pause(0.001)
                 plt.clf()
             for ob in obs:
                 out_file_h.writelines(f"{ob}, ")

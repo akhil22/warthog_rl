@@ -40,7 +40,7 @@ def main():
     obs = np.array(env.reset())
     model = PPO2('MlpPolicy', env, verbose=1)
     #model = PPO2.load('./policy/vel_weight8_stable9')
-    #model = PPO2.load(sys.argv[1])
+    model = PPO2.load(sys.argv[1])
     df = pd.read_csv(sys.argv[2], header=None)
     #print(df)
     for i in range(0, len(sys.argv) - 3):
@@ -56,15 +56,21 @@ def main():
     test = df[~msk]
     #print("after combining")
     #print(df)
+    print("test")
     print(len(train))
+    print(len(test))
     print(num_data_points)
-
     n_epoch = 200
     graph = model.sess.graph
     with model.sess as sess:
         target_ph = tf.placeholder(dtype=tf.float32, shape=[None, 2])
         train_obs, train_labels = get_obs_label(train)
         test_obs, test_labels = get_obs_label(test)
+            #print(k)
+            #print(actionu)
+            #print(k)
+        #print(action3)
+        #action3 = action3[0]
         #print(obs)
         #print(labels)
         train_obs = train_obs.reshape((-1,) + model.observation_space.shape) 
@@ -133,8 +139,9 @@ def main():
         #model.save("./policy/after_train_const_delay")
         #model.save(f"./policy/combine_trained_may8_{n_epoch}")
         #model.save(f"./policy/kinematic_sup0_after_corr_train_0_1M_2_2_online{n_epoch}")
-        model.save(f"./policy/sup3_ablation_online_test_no_batch{n_epoch}")
-        #model.save(sys.argv[3])
+        #model.save(f"./policy/sup3_ablation_online_test_no_batch{n_epoch}")
+        #model.save(f"./policy/sup3_ablation_online_test_no_batch{n_epoch}")
+        model.save(f"./policy/comp_temp2{n_epoch}")
 
     plt.grid()
     plt.show()
