@@ -2,7 +2,7 @@ import gym
 from env.WarthogEnv import WarthogEnv
 from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3.common.vec_env import SubprocVecEnv
-from stable_baselines3.common import make_vec_env
+from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.utils import set_random_seed
 import numpy as np
 from matplotlib import pyplot as plt
@@ -21,17 +21,17 @@ def make_env(env_id: str, rank: int, seed: int = 0) -> Callable:
     :return: (Callable)
     """
     def _init() -> gym.Env:
-        env = WarthogEnv('unity_remote.txt')
+        env = WarthogEnv('unity_remote.txt', None)
         env.seed(seed + rank)
         return env
     set_random_seed(seed)
     return _init
 def main():
     env_id = "CartPole-v1"
-    num_cpu = 20  # Number of processes to use
+    num_cpu = 1  # Number of processes to use
     # Create the vectorized environment
     env = SubprocVecEnv([make_env(env_id, i) for i in range(num_cpu)])
-    fname = 'policy/vel_weight9_d'
+    fname = 'policy/vel_weight9_ppo'
     for i in range(0,10):
         if i == 0:
             #model = PPO('MlpPolicy', env, verbose=1)
