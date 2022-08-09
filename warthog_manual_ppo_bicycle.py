@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
 
 import gym
 
@@ -37,7 +36,6 @@ class PolicyNetworkGauss(nn.Module):
         return dist
 
 
-# In[4]:
 
 
 def main():
@@ -45,7 +43,7 @@ def main():
     env = WarthogEnv('sim_remote_waypoint.txt', None)
     #env = WarthogEnv('real_remote_waypoints.txt')
     plt.pause(2)
-    model = torch.load('./temp_warthog.pt')
+    model = torch.load('./temp_policy/tan_h/manaul_ppo_2400000.pt')
     #model.save('./policy/zero_train')
     #model = PPO2.load('./policy/vel_weight8_stable8')
     #model = PPO2.load('./policy/vel_airsim_test_final_6xfast3')
@@ -88,8 +86,6 @@ def main():
             obs = env.reset()
 
 
-# In[6]:
-
     plt.figure(2)
     plt.plot(act1)
 
@@ -100,5 +96,3 @@ def main():
     plt.show()
 if __name__ == '__main__':
     main()
-
-# In[ ]:
