@@ -90,8 +90,10 @@ class WarthogEnv(gym.Env):
         self.save_data = True
         self.ep_start = 1
         self.traj_file = None
-        if(self.out_traj_file is not None):
+        if (self.out_traj_file is not None):
             self.traj_file = open(file_name, 'w')
+
+
 #    def __del__(self):
 #        self.fig.clear()
 
@@ -132,9 +134,11 @@ class WarthogEnv(gym.Env):
         self.pose[1] = y + v_ * math.sin(th) * dt
         self.pose[2] = th + w_ * dt
         self.pose[2] = self.zero_to_2pi(self.pose[2])
-        if(self.save_data and self.traj_file is not None):
-            self.traj_file.writelines(f"{x}, {y}, {th}, {v_}, {w_}, {v}, {w}, {self.ep_start}\n")
+        if (self.save_data and self.traj_file is not None):
+            self.traj_file.writelines(
+                f"{x}, {y}, {th}, {v_}, {w_}, {v}, {w}, {self.ep_start}\n")
         self.ep_start = 0
+
     def close_files(self):
         self.traj_file.close()
 
