@@ -30,7 +30,7 @@ def main():
     #model = PPO2.load('./policy/vel_airsim_test_final_6xfast3')
     #model = PPO2.load('./policy/kinematic_sup0_after_corr_train_200')
     #model = PPO2.load('./policy/kinematic_sup0_after_corr_train_500k_1M200')
-    model = PPO.load('./policy/ppo_policy')
+    model = PPO.load('./temp_policy/stable3_ppo10')
     #model = PPO2.load('./policy/after_train_const')
     #model = PPO2.load('./policy/after_train_const_delay')
     #model = PPO2.load('./policy/combine_trained')

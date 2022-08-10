@@ -43,7 +43,7 @@ def main():
     env = WarthogEnv('sim_remote_waypoint.txt', None)
     #env = WarthogEnv('real_remote_waypoints.txt')
     plt.pause(2)
-    model = torch.load('./temp_policy/tan_h/manaul_ppo_2400000.pt')
+    model = torch.load('./temp_policy/tan_h/manaul_ppo_500000.pt')
     #model.save('./policy/zero_train')
     #model = PPO2.load('./policy/vel_weight8_stable8')
     #model = PPO2.load('./policy/vel_airsim_test_final_6xfast3')
