@@ -1,22 +1,12 @@
 #!/usr/bin/env python
 # coding: utf-8
-
-# In[1]:
-
-import gym
-
-from stable_baselines.common.policies import MlpPolicy
-from stable_baselines.common import make_vec_env
-from stable_baselines import PPO2
 from matplotlib import pyplot as plt
 #from env.WarthogEnvAirSim import WarthogEnv
 from env.WarthogEnv import WarthogEnv
 import time
 import numpy as np
 import sys
-from tqdm import tqdm
 
-# In[4]:
 
 
 def main():
