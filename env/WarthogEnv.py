@@ -237,11 +237,19 @@ class WarthogEnv(gym.Env):
         if self.ep_steps == self.max_ep_steps:
             done = True
             self.ep_steps = 0
+        # following is the best reward we can get
+        '''self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
+            4.5 - math.fabs(self.vel_error)) * (
+                math.pi / 3. - math.fabs(self.phi_error)) - math.fabs(
+                    self.action[0] -
+                    self.prev_action[0]) - 2 * math.fabs(self.action[1])'''
         self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
             4.5 - math.fabs(self.vel_error)) * (
                 math.pi / 3. - math.fabs(self.phi_error)) - math.fabs(
                     self.action[0] -
-                    self.prev_action[0]) - 2 * math.fabs(self.action[1])
+                    self.prev_action[0]) - 0.5 * math.fabs(self.action[1]- self.prev_action[1]) - math.fabs(self.action[1])
+
+
         self.omega_reward = -2 * math.fabs(self.action[1])
         self.vel_reward = -math.fabs(self.action[0] - self.prev_action[0])
         #self.reward = (2.0 - math.fabs(self.crosstrack_error)) * (
