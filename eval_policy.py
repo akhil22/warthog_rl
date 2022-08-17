@@ -21,7 +21,7 @@ from tqdm import tqdm
 
 def main():
     #env = WarthogEnv('unity_remote.txt')
-    num_runs = 1
+    num_runs = 10
     num_steps = 3000
     avg_rew = np.zeros([num_runs,num_steps])
     env = WarthogEnv('sim_remote_waypoint.txt', 'None')
