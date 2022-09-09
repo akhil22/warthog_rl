@@ -32,7 +32,7 @@ class DataCollector:
         self.gps_odom_topic = rospy.get_param('~map_odom_topic', 'odometry/filtered2')
         #self.odom_topic = rospy.get_param('~odom_topic', 'warthog_velocity_controller/odom')
         # self.out_file = rospy.get_param('~out_file_name', 'real_remote_poses_ext_war_gps2.csv')
-        self.out_file = rospy.get_param('~out_file_name', 'rellis_mud1.csv')
+        self.out_file = rospy.get_param('~out_file_name', 'new_hanger_grass1.csv')
         self.file_h = open(self.out_file, 'w')
         self.file_h.writelines("x,y,th,vel,w,v_cmd,w_cmd\n")
         self.cmd_vel_sub = message_filters.Subscriber(self.cmd_vel_topic, Twist)
