@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
 
 import gym
 
@@ -15,7 +14,6 @@ import time
 import numpy as np
 import sys
 
-# In[4]:
 
 
 def main():
@@ -30,7 +28,8 @@ def main():
     #model = PPO2.load('./policy/vel_airsim_test_final_6xfast3')
     #model = PPO2.load('./policy/kinematic_sup0_after_corr_train_200')
     #model = PPO2.load('./policy/kinematic_sup0_after_corr_train_500k_1M200')
-    model = PPO2.load('./policy/kinematic_sup0')
+    #model = PPO2.load('./policy/kinematic_sup0')
+    model = PPO2.load('./policy/finalx')
     #model = PPO2.load('./policy/after_train_const')
     #model = PPO2.load('./policy/after_train_const_delay')
     #model = PPO2.load('./policy/combine_trained')
@@ -67,12 +66,10 @@ def main():
             obs = env.reset()
 
 
-# In[6]:
 
     plt.figure(2)
     plt.plot(act1)
 
-    # In[7]:
 
     plt.figure(3)
     plt.plot(act2)
@@ -80,4 +77,3 @@ def main():
 if __name__ == '__main__':
     main()
 
-# In[ ]:

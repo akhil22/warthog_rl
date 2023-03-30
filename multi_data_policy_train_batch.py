@@ -18,7 +18,6 @@ from ast import literal_eval
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 
-# In[4]:
 def get_obs_label(train):
     train_obs = train[:,0:42]
     train_labels = train[:,42:44]
@@ -41,7 +40,7 @@ def main():
     obs = np.array(env.reset())
     model = PPO2('MlpPolicy', env, verbose=1)
     #model = PPO2.load('./policy/vel_weight8_stable9')
-    #model = PPO2.load(sys.argv[1])
+    model = PPO2.load(sys.argv[1])
     df = pd.read_csv(sys.argv[2], header=None)
     #print(df)
     for i in range(0, len(sys.argv) - 3):
@@ -142,7 +141,8 @@ def main():
         #model.save(f"./policy/kinematic_sup0_after_corr_train_0_1M_online{n_epoch}")
         #model.save(f"./policy/kinematic5_batch_{batch_size}_online_train{n_epoch}")
         #model.save(f"./policy/kinematic5_manual_obs2_{batch_size}_online_train{n_epoch}")
-        model.save(f"./policy/manual2_obs2_{batch_size}_online_train{n_epoch}")
+        #model.save(f"./policy/manual2_obs2_{batch_size}_online_train{n_epoch}")
+        model.save(f"./policy/finalx")
 
         #model.save(sys.argv[3])
 
