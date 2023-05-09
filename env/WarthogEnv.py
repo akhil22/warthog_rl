@@ -12,12 +12,13 @@ import time
 class WarthogEnv(gym.Env):
     def __init__(self, waypoint_file, file_name):
         super(WarthogEnv, self).__init__()
+        self.horizon = 5
         self.action_space = spaces.Box(low=np.array([0.0, -1.5]),
                                        high=np.array([1.0, 1.5]),
                                        shape=(2, ))
         self.observation_space = spaces.Box(low=-100,
                                             high=1000,
-                                            shape=(42, ),
+                                            shape=(self.horizon*4+2, ),
                                             dtype=np.float)
         self.filename = waypoint_file
         self.out_traj_file = file_name
@@ -30,7 +31,6 @@ class WarthogEnv(gym.Env):
         self.prev_closest_idx = 0
         self.closest_dist = math.inf
         self.num_waypoints = 0
-        self.horizon = 10
         self.dt = 0.06
         self.ref_vel = []
         self.axis_size = 20
