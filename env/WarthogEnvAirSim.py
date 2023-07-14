@@ -110,8 +110,8 @@ class WarthogEnv(gym.Env):
         self.ax.plot(x, y, '+r')
 
     def sim_warthog(self, v, w):
-        self.war_controls.linear_vel = v.item()
-        self.war_controls.angular_vel = w.item()
+        self.war_controls.linear_vel = v
+        self.war_controls.angular_vel = w
         self.client.simPause(False)
         self.client.setWarthogControls(self.war_controls)
         #self.client.simContinueForTime(0.02)
