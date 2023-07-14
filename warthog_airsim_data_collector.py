@@ -25,6 +25,7 @@ class DataCollector:
         self.file_h = open(self.out_file, 'w')
         self.file_h.writelines(f"x,y,th,vel,w,v_cmd,w_cmd\n")
         self.joystick = pygame.joystick.Joystick(0)
+        self.prev_time = None
     def render_env(self):
         """Render warthog environment"""
         #self.env.render()
@@ -40,20 +41,27 @@ class DataCollector:
         #v_cmd = msg.linear.x
         #w_cmd = msg.angular.z
         self.file_h.writelines(f"{x}, {y}, {th}, {v}, {w}, {v_cmd}, {w_cmd}\n")
-        self.env.sim_warthog(v_cmd, w_cmd)
-        self.env.render()
+        curr_time = time.time()
+        if (curr_time - self.prev_time) >= 0.058:
+            self.env.sim_warthog(v_cmd, w_cmd)
+            self.prev_time = curr_time
+        #self.env.render()
 
 def main():
     """Ros node to start warthog simulation and collect data"""
     data_collector = DataCollector()
-    plt.pause(3)
+    #plt.pause(3)
+    data_collector.env.render()
     done = False
+    data_collector.prev_time = time.time()
     while(not done):
         a0  = data_collector.joystick.get_axis(1)
         a1  = data_collector.joystick.get_axis(2)
         v = -a0*5.0
         w = -a1*2.0
         data_collector.cmd_vel_cb(v, w)
+        print(v,w)
+        time.sleep(0.01)
 
 if __name__ == '__main__':
     main()

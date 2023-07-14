@@ -112,13 +112,13 @@ class WarthogEnv(gym.Env):
     def sim_warthog(self, v, w):
         self.war_controls.linear_vel = v
         self.war_controls.angular_vel = w
-        self.client.simPause(False)
+        #self.client.simPause(False)
         self.client.setWarthogControls(self.war_controls)
         #self.client.simContinueForTime(0.02)
         #self.client.simContinueForFrames(4)
         #time.sleep(self.dt)
-        time.sleep(0.02)
-        self.client.simPause(True)
+        #time.sleep(0.02)
+        #self.client.simPause(True)
         #self.client.simContinueForTime(self.dt)
         self.war_state = self.client.getWarthogState()
         w = self.war_state.kinematics_estimated.orientation.w_val
