@@ -45,15 +45,16 @@ class DataCollector:
         if (curr_time - self.prev_time) >= 0.058:
             self.env.sim_warthog(v_cmd, w_cmd)
             self.prev_time = curr_time
-        #self.env.render()
+        self.env.render()
 
 def main():
     """Ros node to start warthog simulation and collect data"""
     data_collector = DataCollector()
-    #plt.pause(3)
+    plt.pause(3)
     data_collector.env.render()
     done = False
     data_collector.prev_time = time.time()
+    print("somethign")
     while(not done):
         a0  = data_collector.joystick.get_axis(1)
         a1  = data_collector.joystick.get_axis(2)

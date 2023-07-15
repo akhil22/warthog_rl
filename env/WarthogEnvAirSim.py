@@ -89,9 +89,12 @@ class WarthogEnv(gym.Env):
         self.delay_steps = 5
         self.v_delay_data = [0.] * self.delay_steps
         self.w_delay_data = [0.] * self.delay_steps
-        self.client = airsim.WarthogClient()
+        self.port = 41456 
+        print("Starting warthog AirSim client")
+        self.client = airsim.WarthogClient(port = self.port)
         self.client.confirmConnection()
         self.client.enableApiControl(True)
+        print("Started warthog AirSim client")
         self.war_controls = airsim.WarthogControls()
         self.war_state = airsim.WarthogState()
 
