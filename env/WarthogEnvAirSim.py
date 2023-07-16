@@ -14,12 +14,13 @@ import airsim
 class WarthogEnv(gym.Env):
     def __init__(self, waypoint_file):
         super(WarthogEnv, self).__init__()
+        self.horizon = 5
         self.action_space = spaces.Box(low=np.array([0.0, -1.5]),
                                        high=np.array([1.0, 1.5]),
                                        shape=(2, ))
         self.observation_space = spaces.Box(low=-100,
                                             high=1000,
-                                            shape=(42, ),
+                                            shape=(self.horizon*4+2, ),
                                             dtype=np.float)
         self.filename = waypoint_file
         plt.ion
@@ -32,7 +33,6 @@ class WarthogEnv(gym.Env):
         self.prev_closest_idx = 0
         self.closest_dist = math.inf
         self.num_waypoints = 0
-        self.horizon = 10
         self.dt = 0.0085
         self.ref_vel = []
         self.axis_size = 20
@@ -115,14 +115,14 @@ class WarthogEnv(gym.Env):
     def sim_warthog(self, v, w):
         self.war_controls.linear_vel = v
         self.war_controls.angular_vel = w
-        #self.client.simPause(False)
+        self.client.simPause(False)
         self.client.setWarthogControls(self.war_controls)
-        #self.client.simContinueForTime(0.02)
+        #self.client.simContinueForTime(0.06)
         #self.client.simContinueForFrames(4)
         #time.sleep(self.dt)
-        #time.sleep(0.02)
-        #self.client.simPause(True)
+        time.sleep(0.06)
         #self.client.simContinueForTime(self.dt)
+        self.client.simPause(True)
         self.war_state = self.client.getWarthogState()
         w = self.war_state.kinematics_estimated.orientation.w_val
         x = self.war_state.kinematics_estimated.orientation.x_val
@@ -288,6 +288,7 @@ class WarthogEnv(gym.Env):
         self.total_ep_reward = 0
         if (self.max_vel >= 5):
             self.max_vel = 1
+        self.max_vel = 5
         idx = np.random.randint(self.num_waypoints, size=1)
         idx = [0]
         idx = idx[0]
