@@ -1,9 +1,11 @@
 from env.WarthogEnvAirSim import WarthogEnv
 import threading
 import time
+import pyglet
 from matplotlib import pyplot as plt
 import pygame
 pygame.init()
+    
 class DataCollector:
     """ Simulation data collector
 
@@ -20,11 +22,17 @@ class DataCollector:
         """Initialize Data collector with gym environment
         command velocity topic and output file name
         """
-        self.env = WarthogEnv(None)
-        self.out_file = 'AirSimPose.csv' 
+        self.joystick = pyglet.input.get_joysticks()
+        if self.joystick:
+            self.joystick[0].open()
+        else:
+            print("No Joystick found, Connect a joystick to continue. EXITING !!\n")
+        self.prev_time = None
+        self.env = WarthogEnv('Airsim_waypoints.csv')
+        self.out_file = 'AirSimPose2.csv' 
         self.file_h = open(self.out_file, 'w')
         self.file_h.writelines(f"x,y,th,vel,w,v_cmd,w_cmd\n")
-        self.joystick = pygame.joystick.Joystick(0)
+        self.joystick = pygame.joystick.Joystick(0) 
         self.prev_time = None
     def render_env(self):
         """Render warthog environment"""
@@ -42,10 +50,13 @@ class DataCollector:
         #w_cmd = msg.angular.z
         self.file_h.writelines(f"{x}, {y}, {th}, {v}, {w}, {v_cmd}, {w_cmd}\n")
         curr_time = time.time()
-        if (curr_time - self.prev_time) >= 0.058:
+        if (curr_time - self.prev_time) >= 0.059:
             self.env.sim_warthog(v_cmd, w_cmd)
             self.prev_time = curr_time
+        #time1 = time.time()
+        #self.env.fig.canvas.flush_events()
         self.env.render()
+        #print(time.time() - time1)
 
 def main():
     """Ros node to start warthog simulation and collect data"""
@@ -61,8 +72,8 @@ def main():
         v = -a0*5.0
         w = -a1*2.0
         data_collector.cmd_vel_cb(v, w)
-        print(v,w)
-        time.sleep(0.01)
+        #print(v,w)
+        time.sleep(0.001)
 
 if __name__ == '__main__':
     main()
