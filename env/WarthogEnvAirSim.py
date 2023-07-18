@@ -89,7 +89,7 @@ class WarthogEnv(gym.Env):
         self.delay_steps = 5
         self.v_delay_data = [0.] * self.delay_steps
         self.w_delay_data = [0.] * self.delay_steps
-        self.port = 41456 
+        self.port = 41454 
         print("Starting warthog AirSim client")
         self.client = airsim.WarthogClient(port = self.port)
         self.client.confirmConnection()
