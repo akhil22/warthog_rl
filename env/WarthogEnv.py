@@ -110,6 +110,7 @@ class WarthogEnv(gym.Env):
             x.append(self.waypoints_list[i][0])
             y.append(self.waypoints_list[i][1])
         self.ax.plot(x, y, '+r')
+        #print(x,y)
 
     def sim_warthog(self, v, w):
         x = self.pose[0]
@@ -371,6 +372,12 @@ class WarthogEnv(gym.Env):
                     ]))
                 self.ref_vel.append(float(row[3]))
             # self.waypoints_list.append(np.array([utm_cord[0], utm_cord[1], float(row[2]), 1.5]))
+            x_ref = self.waypoints_list[0][0]
+            y_ref = self.waypoints_list[0][1]
+            for i in range(0, len(self.waypoints_list)):
+                self.waypoints_list[i][0] = self.waypoints_list[i][0] - x_ref 
+                self.waypoints_list[i][1] = self.waypoints_list[i][1] - y_ref 
+                print(self.waypoints_list[i])
             for i in range(0, len(self.waypoints_list) - 1):
                 xdiff = self.waypoints_list[i +
                                             1][0] - self.waypoints_list[i][0]
