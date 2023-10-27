@@ -39,11 +39,12 @@ class PolicyNetworkGauss(nn.Module):
 
 
 def main():
-    #env = WarthogEnv('unity_remote.txt')
-    env = WarthogEnv('sim_remote_waypoint.txt', None)
+    #env = WarthogEnv('unity_remote.txt', None)
+    #env = WarthogEnv('sim_remote_waypoint.txt', None)
+    env = WarthogEnv('concrete1.csv', None)
     #env = WarthogEnv('real_remote_waypoints.txt')
     plt.pause(2)
-    model = torch.load('./temp_policy/tan_h/final2x.pt')
+    model = torch.load('./temp_policy/tan_h/manaul2_ppo_batch_6645800_rew_4223.893626873896.pt')
     #model.save('./policy/zero_train')
     #model = PPO2.load('./policy/vel_weight8_stable8')
     #model = PPO2.load('./policy/vel_airsim_test_final_6xfast3')
