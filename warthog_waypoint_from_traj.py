@@ -47,7 +47,7 @@ def main():
     out_file = sys.argv[2]
     out_file_h = open(out_file, "w")
     #out_file_h.writelines(f"obs,action\n")
-    warthog_env = WarthogEnv(None)
+    warthog_env = WarthogEnv(None,None)
     num_points = len(df.index)
     #    num_points = 10
     num_traj_point = 10

@@ -6,7 +6,8 @@ import gym
 
 #from stable_baselines3.common.policies import MlpPolicy
 #from env.WarthogEnvAirSim import WarthogEnv
-from env.WarthogEnv import WarthogEnv
+from env.WarthogEnvAirSim import WarthogEnv
+#from env.WarthogEnv import WarthogEnv
 import time
 import numpy as np
 import sys
@@ -39,12 +40,13 @@ class PolicyNetworkGauss(nn.Module):
 
 
 def main():
-    #env = WarthogEnv('unity_remote.txt', None)
+    #env = WarthogEnv('unity_remote.txt')
     #env = WarthogEnv('sim_remote_waypoint.txt', None)
-    env = WarthogEnv('concrete1.csv', None)
+    env = WarthogEnv('Airsim_waypoints.csv')
     #env = WarthogEnv('real_remote_waypoints.txt')
     plt.pause(2)
-    model = torch.load('./temp_policy/tan_h/manaul2_ppo_batch_6645800_rew_4223.893626873896.pt')
+    #model = torch.load('./temp_policy/tan_h/final2x.pt')
+    model = torch.load('./temp_policy/tan_h/manaul2_ppo_batch_3006500_rew_4453.807677705487.pt')
     #model.save('./policy/zero_train')
     #model = PPO2.load('./policy/vel_weight8_stable8')
     #model = PPO2.load('./policy/vel_airsim_test_final_6xfast3')
@@ -74,9 +76,10 @@ def main():
         act1.append(np.clip(action[0], 0, 1) * 4)
         act2.append(np.clip(action[1], -1, 1) * 2.5)
         #act2.append(reward)
-        #action[0] = np.clip(action[0], 0, 1)*4
-        #action[1] = np.clip(action[1], -1, 1)*2.5
-        obs, reward, done, info = env.step(action)
+        actt = [0, 0]
+        actt[0] = np.clip(action[0].item(), 0, 1)
+        actt[1] = np.clip(action[1].item(), -1, 1)
+        obs, reward, done, info = env.step(actt)
         #print(t2-t1)
         #if t2 -t1 < 0.3:
         # time.sleep(0.3 - (t2-t1))
@@ -85,7 +88,8 @@ def main():
         env.render()
         #time.sleep(2)
         if done:
-            obs = env.reset()
+            pass
+           # obs = env.reset()
 
 
     plt.figure(2)
