@@ -12,7 +12,7 @@ import time
 class WarthogEnv(gym.Env):
     def __init__(self, waypoint_file, file_name):
         super(WarthogEnv, self).__init__()
-        self.horizon = 5
+        self.horizon = 10
         self.action_space = spaces.Box(low=np.array([0.0, -1.5]),
                                        high=np.array([1.0, 1.5]),
                                        shape=(2, ))

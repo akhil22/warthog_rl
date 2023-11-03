@@ -6,8 +6,8 @@ import gym
 
 #from stable_baselines3.common.policies import MlpPolicy
 #from env.WarthogEnvAirSim import WarthogEnv
-from env.WarthogEnvAirSim import WarthogEnv
-#from env.WarthogEnv import WarthogEnv
+#from env.WarthogEnvAirSim import WarthogEnv
+from env.WarthogEnv import WarthogEnv
 import time
 import numpy as np
 import sys
@@ -41,12 +41,13 @@ class PolicyNetworkGauss(nn.Module):
 
 def main():
     #env = WarthogEnv('unity_remote.txt')
-    #env = WarthogEnv('sim_remote_waypoint.txt', None)
-    env = WarthogEnv('Airsim_waypoints.csv')
-    #env = WarthogEnv('real_remote_waypoints.txt')
+    env = WarthogEnv('sim_remote_waypoint.txt', None)
+    #env = WarthogEnv('Airsim_waypoints.csv')
+   # env = WarthogEnv('real_remote_waypoints.txt')
     plt.pause(2)
     #model = torch.load('./temp_policy/tan_h/final2x.pt')
-    model = torch.load('./temp_policy/tan_h/manaul2_ppo_batch_3006500_rew_4453.807677705487.pt')
+    #model = torch.load('./temp_policy/tan_h/manaul2_ppo_batch_3006500_rew_4453.807677705487.pt')
+    model = torch.load('./temp_policy/tan_h/manaul2_ppo_batch_817600_rew_3238.397676609136.pt')
     #model.save('./policy/zero_train')
     #model = PPO2.load('./policy/vel_weight8_stable8')
     #model = PPO2.load('./policy/vel_airsim_test_final_6xfast3')
